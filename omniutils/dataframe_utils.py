@@ -632,7 +632,7 @@ class DataFrameUtils:
         # Garantir que a chave primária está presente no DataFrame
         if primary_key not in df.columns:
             raise DataFrameFormatError(
-                f"A coluna '{primary_key}' não está presente no " f"DataFrame."
+                f"A coluna '{primary_key}' não está presente no DataFrame."
             )
 
         # Identificar colunas que possuem valores do tipo dict
@@ -1025,8 +1025,7 @@ class DataFrameUtils:
                     return int(value)
                 except (ValueError, TypeError) as err:
                     raise DataFrameFormatError(
-                        f"Valor  {value} inválido para conversão, "
-                        f"error: {err}"
+                        f"Valor  {value} inválido para conversão, error: {err}"
                     ) from err
             raise DataFrameFormatError(f"Valor não escalar encontrado: {value}")
 
@@ -1084,11 +1083,11 @@ class DataFrameUtils:
             except ValueError as err:
                 # Levanta uma exceção específica se a conversão falhar
                 raise DataFrameFormatError(
-                    f"Erro ao converter '{valor}' para float: " f"{err}"
+                    f"Erro ao converter '{valor}' para float: {err}"
                 ) from err
         else:
             raise DataFrameFormatError(
-                f"Nenhum valor encontrado na string: " f"'{valor}'"
+                f"Nenhum valor encontrado na string: '{valor}'"
             )
 
     @staticmethod

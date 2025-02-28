@@ -524,7 +524,7 @@ class TextUtils:
                 return float(number_str)
             except ValueError as err:
                 raise ValueError(
-                    f"Falha ao converter o número: " f"'{number_str}'"
+                    f"Falha ao converter o número: '{number_str}'"
                 ) from err
         else:
             raise ValueError(f"Padrão não encontrado na string: '{text}'")
@@ -881,8 +881,7 @@ class TextUtils:
             return str(float_value)
         except ValueError as err:
             logger.warning(
-                "Falha ao converter valor: %s. Retornando o valor "
-                "original: %s.",
+                "Falha ao converter valor: %s. Retornando o valor original: %s.",
                 err,
                 value,
             )

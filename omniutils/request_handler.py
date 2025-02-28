@@ -10,11 +10,16 @@ import requests
 import requests_cache  # type: ignore
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
-from requests.exceptions import ChunkedEncodingError
+from requests.exceptions import (
+    ChunkedEncodingError,
+)
 from requests.exceptions import (
     ConnectionError as RequestsConnectionError,  # Renomeia a importação
 )
-from requests.exceptions import RequestException, Timeout
+from requests.exceptions import (
+    RequestException,
+    Timeout,
+)
 from requests_cache import CachedSession
 from urllib3 import Retry
 
@@ -255,8 +260,7 @@ class RequestHandler:
             if response.status_code == 429:
                 retry_after = int(response.headers.get("Retry-After", 60))
                 logger.warning(
-                    "Retry-After definido. Tentando novamente em %s"
-                    " segundos...",
+                    "Retry-After definido. Tentando novamente em %s segundos...",
                     retry_after,
                 )
                 time.sleep(retry_after)
@@ -270,10 +274,8 @@ class RequestHandler:
 
         except requests.exceptions.HTTPError as err:
             logger.error(
-                "Erro HTTP ao acessar %s. "
-                "Código: {err.response.status_code}, Erro: %s",
-                url,
-                err,
+                "Erro HTTP ao acessar %s. Código: {err.response.status_code}, "
+                "Erro: %s", url, err,
             )
             raise
         except requests.exceptions.ReadTimeout as err:
@@ -419,8 +421,7 @@ class RequestHandler:
                     time.sleep(2)  # Pequeno intervalo entre as tentativas
             # Se o retry_count chegar a 0, levanta uma exceção
             raise RequestsConnectionError(
-                "Download falhou após várias tentativas devido a "
-                "IncompleteRead."
+                "Download falhou após várias tentativas devido a IncompleteRead."
             )
         except Exception as err:
             logger.error("Erro: %s", err)

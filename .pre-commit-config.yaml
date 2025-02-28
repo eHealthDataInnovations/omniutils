@@ -33,35 +33,35 @@ repos:
 
   # Verificação de ortografia com codespell
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
       - id: codespell
         name: Spell Checker
 #        files: ^(apps|djud|deploy|pre-commit-bin)/
         args: ["--ignore-words=pre-commit-bin/ignore-words.txt"]
-        stages: [pre-commit, push]
+        stages: [pre-commit, pre-push]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.2
+    rev: v0.9.9
     hooks:
       - id: ruff
         name: Ruff Linter (backend)
         args: ["--fix"]
         # "--select=F401,F841" Remove automaticamente os imports (F401 e variáveis (F841) não utilizadas
 #        files: ^(apps|djud|deploy|pre-commit-bin)/  # Aplica-se apenas ao diretório backend
-        stages: [pre-commit, push]
+        stages: [pre-commit, pre-push]
       - id: ruff-format
         name: Ruff Formatter (backend)
 #        files: ^(apps|djud|deploy|pre-commit-bin)/  # Aplica-se apenas ao diretório backend
-        stages: [pre-commit, push]
+        stages: [pre-commit, pre-push]
 
   - repo: https://github.com/psf/black
-    rev: 24.10.0  # versão do Black
+    rev: 25.1.0  # versão do Black
     hooks:
       - id: black
         args: ["--line-length", "80"]
 #        files: ^(apps|djud|deploy|pre-commit-bin)/  # Aplica-se apenas ao diretório backend
-        stages: [pre-commit, push]
+        stages: [pre-commit, pre-push]
 
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.2
@@ -73,15 +73,15 @@ repos:
           - flake8-debugger
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2  # ou a versão mais recente
+    rev: 6.0.1  # ou a versão mais recente
     hooks:
       - id: isort
         args: ["--profile", "black"]
-        stages: [pre-commit, push]
+        stages: [pre-commit, pre-push]
 
   # Verificação de tipos com Mypy
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.13.0
+    rev: v1.15.0
     hooks:
       - id: mypy
         name: Mypy Type Checker (backend)
@@ -91,7 +91,7 @@ repos:
             pydantic==2.9.2,
           ]
 #        files: ^(apps|djud|deploy|pre-commit-bin)/  # Aplica-se apenas ao diretório backend
-        stages: [pre-commit, push]
+        stages: [pre-commit, pre-push]
 
   - repo: https://github.com/pre-commit/mirrors-pylint
     rev: v3.0.0a5
@@ -100,4 +100,4 @@ repos:
         name: Pylint Code Linter
         args: ["--rcfile=.pylintrc"]  # Se você tiver um arquivo de configuração
 #        files: ^omniutils/  # Aplica-se apenas aos arquivos do diretório omniutils
-        stages: [pre-commit, push]
+        stages: [pre-commit, pre-push]

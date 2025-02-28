@@ -54,8 +54,8 @@ def check_settings():
     spec = importlib.util.spec_from_file_location("settings", settings_path)
     if spec is None or spec.loader is None:
         raise ImportError(
-            f"Não foi possível carregar o módulo "
-            f"a partir do caminho: {settings_path}"
+            f"Não foi possível carregar o módulo a partir do caminho: "
+            f"{settings_path}"
         )
 
     settings = importlib.util.module_from_spec(spec)

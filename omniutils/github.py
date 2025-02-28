@@ -101,8 +101,7 @@ class GitHubUtils:
             return last_modified_local_naive
 
         logger.warning(
-            "Erro ao acessar a data de modificação, status_code %s, "
-            "content: %s",
+            "Erro ao acessar a data de modificação, status_code %s, content: %s",
             response.status_code,
             response.text,
         )
