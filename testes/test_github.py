@@ -1,5 +1,6 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime
+
 import requests
 
 from omniutils.github import GitHubUtils
@@ -9,6 +10,7 @@ class DummyResponse:
     """
     Classe auxiliar para simular uma resposta da API do GitHub.
     """
+
     def __init__(self, status_code, json_data, url):
         self.status_code = status_code
         self._json_data = json_data
@@ -40,13 +42,7 @@ def dummy_get(url, headers=None, params=None, **kwargs):
     Returns:
         DummyResponse: Uma instância simulada com status 200 e dados do commit.
     """
-    commit_data = {
-        "commit": {
-            "committer": {
-                "date": "2024-01-15T12:34:56Z"
-            }
-        }
-    }
+    commit_data = {"commit": {"committer": {"date": "2024-01-15T12:34:56Z"}}}
     # A API do GitHub retorna uma lista de commits; aqui simulamos uma lista com um único commit.
     return DummyResponse(200, [commit_data], url)
 
@@ -63,15 +59,19 @@ def test_get_last_modified_date(monkeypatch):
     # Aplica o patch na função request_with_retry da classe RequestHandler, fazendo-a chamar dummy_get.
     monkeypatch.setattr(
         "omniutils.request_handler.RequestHandler.request_with_retry",
-        lambda url, headers, params, **kwargs: dummy_get(url, headers, params, **kwargs)
+        lambda url, headers, params, **kwargs: dummy_get(
+            url, headers, params, **kwargs
+        ),
     )
 
     data_obj = GitHubUtils.get_last_modified_date(
         file_path="data/trusted/file.txt",
         token="dummy_token",
         owner="owner",
-        repo="repo"
+        repo="repo",
     )
     # Como o método remove o tzinfo, espera-se um objeto datetime 'naive'.
-    expected = datetime(2024, 1, 15, 9, 34, 56) # 12:34:56 UTC = 09:34:56 no fuso horário de Brasília
+    expected = datetime(
+        2024, 1, 15, 9, 34, 56
+    )  # 12:34:56 UTC = 09:34:56 no fuso horário de Brasília
     assert data_obj == expected

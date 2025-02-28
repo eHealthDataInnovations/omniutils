@@ -1,9 +1,6 @@
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Union, cast
-
-from omniutils.file_operator import FileOperator
 
 # Configurar logging para exibir mensagens no console
 # logging.basicConfig(
@@ -28,4 +25,3 @@ def get_log_rotary_file_backup_count() -> int:
 def get_disk_cache_expire() -> int:
     duracao = 3600 * 24 * 30  # 30 dias
     return int(os.getenv("DISK_CACHE_EXPIRE", duracao))
-
