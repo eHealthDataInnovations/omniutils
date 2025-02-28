@@ -1,0 +1,50 @@
+# Ignora todas as pastas chamadas cache_dir independentemente de sua
+# localização dentro do repositório.
+
+**/cache_dir/
+
+# Ignora ambientes virtuais Python, incluindo o diretório padrão `.venv`
+.venv
+.env
+.pypirc
+
+diff.txt
+
+# Ignora arquivos Python compilados automaticamente
+*.pyc
+
+# Ignora arquivos de banco de dados local (por exemplo, SQLite)
+*.db
+
+# Ignora banco de dados local SQLite usado para cache de requisição HTTP
+*.sqlite
+
+# Ignora arquivos de backup ou temporários (frequentemente gerados por editores)
+*~
+
+# Ignora arquivos de backup Python específicos
+*.py.bak
+
+# Ignora checkpoints de notebooks Jupyter
+.ipynb_checkpoints
+
+# Ignora arquivos de log
+*.log
+*.log.*
+
+# Ignora configurações e arquivos de ambiente de desenvolvimento
+# Configuração do ambiente de desenvolvimento do IntelliJ/IDEA
+.idea/
+# Diretório de cache de bytecode Python
+__pycache__/
+# Diretório de distribuição
+/dist/
+# Diretório de compilação
+/build/
+
+# Ignora qualquer pasta chamada "temp" no repositório
+temp/
+
+
+# Ignora todos os arquivos na pasta `data/trusted`
+data/trusted/*

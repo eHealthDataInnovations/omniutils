@@ -1,0 +1,4 @@
+include README.md
+recursive-include omniutils/tests *.py
+include omniutils/settings.py
+recursive-exclude * __pycache__ *.py[co]
