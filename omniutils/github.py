@@ -101,7 +101,7 @@ class GitHubUtils:
             return last_modified_local_naive
 
         logger.warning(
-            "Erro ao acessar a data de modificação, status_code %s, content: %s",
+            "Erro ao acessar a data de modificação, status_code %s, content: %s",  # noqa: E501  # pylint: disable=line-too-long
             response.status_code,
             response.text,
         )

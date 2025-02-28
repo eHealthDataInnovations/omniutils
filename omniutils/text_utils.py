@@ -881,7 +881,7 @@ class TextUtils:
             return str(float_value)
         except ValueError as err:
             logger.warning(
-                "Falha ao converter valor: %s. Retornando o valor original: %s.",
+                "Falha ao converter valor: %s. Retornando o valor original: %s.",  # noqa: E501  # pylint: disable=line-too-long
                 err,
                 value,
             )
