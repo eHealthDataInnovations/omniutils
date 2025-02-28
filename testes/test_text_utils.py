@@ -109,7 +109,8 @@ def test_ensure_utf8():
 
 
 def test_extract_http_address():
-    text = "Acesse https://www.example.com e http://teste.com para mais informações."
+    text = ("Acesse https://www.example.com e "
+            "http://teste.com para mais informações.")
     urls = TextUtils.extract_http_address(text)
     assert "https://www.example.com" in urls
     assert "http://teste.com" in urls

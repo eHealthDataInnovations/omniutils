@@ -274,8 +274,9 @@ class RequestHandler:
 
         except requests.exceptions.HTTPError as err:
             logger.error(
-                "Erro HTTP ao acessar %s. Código: {err.response.status_code}, "
-                "Erro: %s", url, err,
+                "Erro HTTP ao acessar %s. Código: {err.response.status_code}, Erro: %s",
+                url,
+                err,
             )
             raise
         except requests.exceptions.ReadTimeout as err:

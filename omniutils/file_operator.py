@@ -443,8 +443,9 @@ class FileOperator:
                     shutil.rmtree(file_path)  # Remove subdiretórios
             except FileNotFoundError as err:
                 logger.warning(
-                    "Arquivo não encontrado ao tentar deletar %s. "
-                    "Ignorando: %s", file_path, err,
+                    "Arquivo não encontrado ao tentar deletar %s. Ignorando: %s",
+                    file_path,
+                    err,
                 )
             except PermissionError as err:
                 logger.error(
