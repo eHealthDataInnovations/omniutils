@@ -45,8 +45,6 @@ OmniUtils: Uma coleção de utilitários para diversos propósitos, incluindo:
   - Funções para interagir com o GitHub (get_last_modified_date)
 """
 
-from .text_utils import TextUtils
-from .request_handler import RequestHandler
 from .check_settings import check_settings
 from .dataframe_utils import DataFrameUtils
 from .date_utils import DateUtils, MonthType
@@ -55,6 +53,8 @@ from .excel_operator import ExcelOperator
 from .exceptions import DataFrameFormatError, InvalidFileFormatError
 from .file_operator import FileOperator
 from .github import GitHubUtils
+from .request_handler import RequestHandler
+from .text_utils import TextUtils
 
 __all__ = [
     "TextUtils",

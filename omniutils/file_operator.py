@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Union
 
-from exceptions import InvalidFileFormatError
+from .exceptions import InvalidFileFormatError
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +21,7 @@ class FileOperator:
     Todos os métodos são implementados como métodos de classe ou estáticos,
     permitindo seu uso sem a necessidade de instanciar a classe.
     """
+
     @classmethod
     def rename_file(
         cls,
@@ -116,8 +117,9 @@ class FileOperator:
         ```
         """
         if not new_extension.startswith("."):
-            raise InvalidFileFormatError("A nova extensão deve começar com um "
-                                         "ponto ('.').")
+            raise InvalidFileFormatError(
+                "A nova extensão deve começar com um " "ponto ('.')."
+            )
 
         path = Path(file_path)
         new_file_path = path.with_suffix(new_extension)
@@ -161,12 +163,14 @@ class FileOperator:
             return file_path
 
         if new_extension is None:
-            raise InvalidFileFormatError("A nova extensão do arquivo não pode "
-                                         "ser nula.")
+            raise InvalidFileFormatError(
+                "A nova extensão do arquivo não pode " "ser nula."
+            )
 
         if not new_extension.startswith("."):
-            raise InvalidFileFormatError("A nova extensão deve começar com um "
-                                         "ponto ('.').")
+            raise InvalidFileFormatError(
+                "A nova extensão deve começar com um " "ponto ('.')."
+            )
 
         # Cria um objeto Path para manipular o caminho
         path = Path(file_path)
@@ -595,8 +599,9 @@ class FileOperator:
             return True
         except (ValueError, TypeError) as err:
             logger.error(f"O caminho '{path}' não é válido. Errr: {err}")
-            raise InvalidFileFormatError(f"O caminho '{path}' não é válido.") \
-                from err
+            raise InvalidFileFormatError(
+                f"O caminho '{path}' não é válido."
+            ) from err
 
     @classmethod
     def sanitize_filename(cls, filename_path: str) -> str:

@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime, timezone
+from typing import Optional
 
-from request_handler import RequestHandler
+from .request_handler import RequestHandler
 
 logger = logging.getLogger(__name__)
 
@@ -10,9 +11,9 @@ class GitHubUtils:
     @staticmethod
     def get_last_modified_date(
         file_path: str,
-        token: str,
         owner: str,
         repo: str,
+        token: Optional[str] = None,
     ):
         """
         Obtém a data da última modificação de um arquivo em um repositório GitHub.
@@ -59,11 +60,14 @@ class GitHubUtils:
             "per_page": 1,  # Limita a resposta a um commit, o mais recente
         }
 
-        # Headers com o token de acesso
-        headers = {"Authorization": f"Bearer {token}"}
+        headers = {}
+        if token:
+            # Headers com o token de acesso
+            headers = {"Authorization": f"Bearer {token}"}
 
-        response = RequestHandler.request_with_retry(url, headers=headers,
-                                                     params=params)  # type: ignore[arg-type]
+        response = RequestHandler.request_with_retry(
+            url, headers=headers, params=params
+        )  # type: ignore[arg-type]
 
         if response.status_code == 200 and response.json():
             commit_data = response.json()[0]

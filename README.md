@@ -176,4 +176,3 @@ Este projeto está licenciado sob a [MIT License](LICENSE).
 ## Contato
 
 Para dúvidas, sugestões ou reportar problemas, abra uma _issue_ no repositório ou entre em contato através do [jailtoncarlos@gmail.com](mailto:jailtoncarlos@gmail.com).
-

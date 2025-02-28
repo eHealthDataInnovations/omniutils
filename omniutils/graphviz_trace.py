@@ -202,6 +202,7 @@ class GraphTracerAbstract(ABC):
         print(resultado)  # Saída: 7
         ```
         """
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             full_method_name = f"{func.__module__}.{func.__qualname__}"

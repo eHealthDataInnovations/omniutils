@@ -40,8 +40,9 @@ class StackLoggerAbstract(ABC):
         pass
 
     @staticmethod
-    def get_module_name(frame_info: inspect.FrameInfo) -> Tuple[Optional[str],
-                                                                Optional[str]]:
+    def get_module_name(
+        frame_info: inspect.FrameInfo,
+    ) -> Tuple[Optional[str], Optional[str]]:
         """
         Obtém o nome do pacote e do módulo a partir das informações de um frame.
 
@@ -130,6 +131,7 @@ class StackLoggerAbstract(ABC):
         print(resultado)  # Saída: 5
         ```
         """
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             framework_name = self.get_framework_name()
@@ -154,8 +156,9 @@ class StackLoggerAbstract(ABC):
             names.reverse()
 
             logger.debug(f"{' > '.join(names)}", extra={"verbose": 1})
-            logger.debug(f"args: {args}, kwargs: {kwargs}",
-                         extra={"verbose": 2})
+            logger.debug(
+                f"args: {args}, kwargs: {kwargs}", extra={"verbose": 2}
+            )
             result = func(*args, **kwargs)
             logger.debug(f"retorno: {result}", extra={"verbose": 2})
             return result

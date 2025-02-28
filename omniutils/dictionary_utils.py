@@ -1,4 +1,5 @@
 from collections.abc import Mapping
+from itertools import product
 from typing import Dict, List, Optional
 
 
@@ -16,29 +17,24 @@ class DictionaryUtils:
         data: Dict, sep: Optional[str] = "__", parent_key: Optional[str] = ""
     ) -> List[Dict]:
         """
-        Expande listas presentes em todos os subníveis de um dicionário, repetindo os demais itens
-        para cada item da lista. Listas vazias são tratadas com o valor `None`.
+        Expande listas presentes em todos os subníveis de um dicionário, gerando
+        uma combinação de valores para cada item em cada lista. Listas vazias são
+        tratadas como contendo o valor `None`.
 
-        O método percorre recursivamente todos os níveis do dicionário, identificando listas e
-        subdicionários. Quando uma lista é encontrada, cada item da lista é expandido em novas
-        entradas, combinando os valores fixos do dicionário com cada elemento da lista. Se um valor
-        for um subdicionário, ele também será expandido recursivamente, e suas chaves serão concatenadas
-        com a chave pai utilizando o separador especificado.
+        Este método percorre recursivamente todos os níveis do dicionário e cria
+        uma lista de dicionários, onde cada dicionário representa uma combinação dos
+        valores fixos do dicionário original com um dos itens das listas encontradas.
+        Se um valor for um subdicionário, ele também será expandido recursivamente,
+        e suas chaves serão concatenadas com a chave pai utilizando o separador especificado.
 
         Parâmetros:
             data (dict): Dicionário de entrada contendo listas e/ou subdicionários para serem expandidos.
-            sep (Optional[str]): Separador utilizado para concatenar as chaves dos subníveis.
-                                 O valor padrão é "__".
-            parent_key (Optional[str]): Prefixo utilizado para as chaves compostas, aplicável em chamadas recursivas.
-                                        O valor padrão é uma string vazia.
+            sep (str, opcional): Separador utilizado para concatenar as chaves dos subníveis. O padrão é "__".
+            parent_key (str, opcional): Prefixo utilizado para as chaves compostas, aplicável em chamadas recursivas. O padrão é uma string vazia.
 
         Retorna:
-            List[dict]: Uma lista de dicionários com as listas expandidas. Cada dicionário na lista
-                        representa uma combinação dos valores fixos do dicionário original com um dos itens
-                        das listas encontradas.
-
-        Exceções:
-            ValueError: Se o argumento `data` não for um dicionário.
+            - List[dict]: Uma lista de dicionários, onde cada dicionário representa uma combinação
+              dos valores fixos do dicionário original com um dos itens das listas encontradas.
 
         Exemplos de uso:
         ```python
@@ -76,58 +72,38 @@ class DictionaryUtils:
         if not isinstance(data, Mapping):
             raise ValueError("O dado de entrada deve ser um dicionário.")
 
-        def flatten_key(key, parent):
+        def flatten_key(key: str, parent: str) -> str:
             return f"{parent}{sep}{key}" if parent else key
 
-        # Separar as chaves cujos valores são listas dos demais valores fixos
-        list_keys = {
-            key: value for key, value in data.items() if isinstance(value, list)
-        }
-        fixed_keys = {
-            key: value
-            for key, value in data.items()
-            if not isinstance(value, list)
-        }
-
-        # Expande recursivamente subníveis de dicionários dentro dos valores
-        # fixos
-        expanded_fixed = {}
-        for key, value in fixed_keys.items():
-            if isinstance(value, dict):
-                sub_expanded = DictionaryUtils.expand_lists_recursive(
-                    value, parent_key=flatten_key(key, parent_key)
+        items = []
+        for key, value in data.items():
+            full_key = flatten_key(key, parent_key)
+            if isinstance(value, list):
+                if not value:
+                    items.append([{full_key: None}])
+                else:
+                    subitems = []
+                    for item in value:
+                        if isinstance(item, dict):
+                            subitems.extend(
+                                DictionaryUtils.expand_lists_recursive(
+                                    item, sep, full_key
+                                )
+                            )
+                        else:
+                            subitems.append({full_key: item})
+                    items.append(subitems)
+            elif isinstance(value, dict):
+                items.append(
+                    DictionaryUtils.expand_lists_recursive(value, sep, full_key)
                 )
-                for sub_entry in sub_expanded:
-                    expanded_fixed.update(sub_entry)
             else:
-                expanded_fixed[flatten_key(key, parent_key)] = value
+                items.append([{full_key: value}])
 
-        # Caso não haja listas, retorna os valores fixos
-        if not list_keys:
-            return [expanded_fixed]
-
-        # Expandir listas em todos os níveis
-        expanded_data = []
-        for key, values in list_keys.items():
-            if not values:  # Tratamento de lista vazia
-                entry = expanded_fixed.copy()
-                entry[flatten_key(key, parent_key)] = None
-                expanded_data.append(entry)
-            else:
-                for value in values:
-                    entry = expanded_fixed.copy()
-                    if isinstance(value, dict):
-                        # Se o item da lista for um dicionário,
-                        # expanda-o recursivamente
-                        sub_expanded = DictionaryUtils.expand_lists_recursive(
-                            value, parent_key=flatten_key(key, parent_key)
-                        )
-                        for sub_entry in sub_expanded:
-                            entry.update(sub_entry)
-                            expanded_data.append(entry)
-                    else:
-                        # Caso seja um valor simples, apenas atribua-o
-                        entry[flatten_key(key, parent_key)] = value
-                        expanded_data.append(entry)
-
-        return expanded_data
+        result = []
+        for combination in product(*items):
+            merged = {}
+            for d in combination:
+                merged.update(d)
+            result.append(merged)
+        return result

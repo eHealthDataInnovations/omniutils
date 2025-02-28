@@ -901,8 +901,10 @@ class TextUtils:
             # Não é inteiro, retorna float.
             return str(float_value)
         except ValueError as e:
-            logger.warning(f"Falha ao converter valor: {e}. "
-                           f"Retornando o valor original: {value}.")
+            logger.warning(
+                f"Falha ao converter valor: {e}. "
+                f"Retornando o valor original: {value}."
+            )
             return value
         return str(value)
 

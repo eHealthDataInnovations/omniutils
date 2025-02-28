@@ -9,29 +9,35 @@ def check_settings():
     Carrega dinamicamente o arquivo de configurações 'settings.py' do projeto.
 
     Este método realiza as seguintes operações:
-      1. Determina o diretório base do projeto com base na localização deste arquivo.
+      1. Determina o diretório base do projeto com base na localização deste
+         arquivo.
       2. Constrói o caminho absoluto para o arquivo 'settings.py'.
       3. Verifica se o arquivo 'settings.py' existe. Se não existir, levanta uma
          exceção FileNotFoundError informando o caminho esperado.
-      4. Cria uma especificação de módulo para 'settings.py' e tenta carregá-lo como
-         um módulo Python.
-      5. Se a especificação ou o carregador (loader) não estiverem disponíveis, levanta
-         uma exceção ImportError.
-      6. Após carregar o módulo, o insere no dicionário sys.modules sob o nome "settings".
-      7. Retorna o módulo 'settings' carregado, permitindo o acesso às suas variáveis
-         e configurações.
+      4. Cria uma especificação de módulo para 'settings.py' e tenta carregá-lo
+         como um módulo Python.
+      5. Se a especificação ou o carregador (loader) não estiverem disponíveis,
+         levanta uma exceção ImportError.
+      6. Após carregar o módulo, o insere no dicionário sys.modules sob o nome
+         "settings".
+      7. Retorna o módulo 'settings' carregado, permitindo o acesso às suas
+         variáveis e configurações.
 
     Returns:
-        module: O módulo Python resultante da importação do arquivo 'settings.py'.
+        module: O módulo Python resultante da importação do arquivo
+            'settings.py'.
 
     Raises:
-        FileNotFoundError: Se o arquivo 'settings.py' não for encontrado no caminho
-                           construído.
-        ImportError: Se não for possível carregar o módulo a partir do caminho especificado.
+        FileNotFoundError: Se o arquivo 'settings.py' não for encontrado no
+            caminho construído.
+        ImportError: Se não for possível carregar o módulo a partir do caminho
+            especificado.
 
     Exemplo de uso:
-        >>> settings = check_settings()
-        >>> print(settings.DEBUG)
+    ```python
+        settings = check_settings()
+        print(settings.DEBUG)
+    ```
     """
     BASE_DIR = Path(__file__).resolve().parent.parent
     settings_path = os.path.join(BASE_DIR, "settings.py")

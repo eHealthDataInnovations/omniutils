@@ -5,6 +5,7 @@ class ExcelOperator:
     """
     Classe utilitária para operações relacionadas a arquivos Excel.
     """
+
     @staticmethod
     def check_figures_in_excel(file_path):
         """

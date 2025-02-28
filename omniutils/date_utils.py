@@ -3,15 +3,33 @@ from datetime import datetime
 from typing import Literal
 
 MonthType = Literal[
-    "janeiro", "fevereiro", "março", "abril",
-    "maio", "junho", "julho", "agosto",
-    "setembro", "outubro", "novembro", "dezembro"
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
 ]
 
 MONTH_PARSER = {
-    "janeiro": 1, "fevereiro": 2, "março": 3, "abril": 4,
-    "maio": 5, "junho": 6, "julho": 7, "agosto": 8,
-    "setembro": 9, "outubro": 10, "novembro": 11, "dezembro": 12
+    "janeiro": 1,
+    "fevereiro": 2,
+    "março": 3,
+    "abril": 4,
+    "maio": 5,
+    "junho": 6,
+    "julho": 7,
+    "agosto": 8,
+    "setembro": 9,
+    "outubro": 10,
+    "novembro": 11,
+    "dezembro": 12,
 }
 
 
@@ -19,6 +37,7 @@ class DateUtils:
     """
     Conjunto de métodos utilitários para operações envolvendo datas.
     """
+
     @staticmethod
     def to_datetime(day: int, month: MonthType, year: int) -> datetime:
         """

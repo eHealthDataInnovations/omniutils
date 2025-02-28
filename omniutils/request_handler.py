@@ -4,23 +4,22 @@ import time
 from datetime import datetime, timedelta
 from http.client import IncompleteRead
 from typing import Dict, Optional
-import htmldate
 
+import htmldate
 import requests
 import requests_cache
 from bs4 import BeautifulSoup
-from requests import Response
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import (
     ConnectionError as RequestsConnectionError,  # Renomeia a importação
 )
-from requests.exceptions import ReadTimeout, RequestException, Timeout
+from requests.exceptions import RequestException, Timeout
 from requests_cache import CachedSession
 from urllib3 import Retry
 
-from check_settings import check_settings
-from file_operator import FileOperator
+from .check_settings import check_settings
+from .file_operator import FileOperator
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +47,7 @@ DEFAULT_STATUS_FORCELIST = [
     # geralmente devido a manutenção ou sobrecarga.
     504,  # Gateway Timeout - Indica que o servidor (ou gateway) não recebeu uma
     # resposta do servidor upstream dentro do tempo limite.
-    520, # Web Server Is Returning an Unknown Erro - este é um código de status
+    520,  # Web Server Is Returning an Unknown Erro - este é um código de status
     # não padrão gerado pelo Cloudflare. Indica um problema desconhecido na
     # comunicação entre o Cloudflare e o servidor de origem.
 ]
@@ -78,6 +77,7 @@ class RequestHandler:
         - show_cache_info(show_urls: bool) -> None:
             Exibe informações sobre o cache de requisições HTTP.
     """
+
     _session = None
 
     @classmethod
@@ -100,7 +100,7 @@ class RequestHandler:
         """
         if cls._session is None:
             session = CachedSession(
-                'request_http_cache',
+                "request_http_cache",
                 # Habilita o uso do diretório de cache padrão do usuário
                 # (dependente do sistema operacional
                 use_cache_dir=True,
@@ -117,31 +117,30 @@ class RequestHandler:
                 allowable_codes=[200, 400],
                 # Define os métodos HTTP cujas respostas serão armazenadas no
                 # cache
-                allowable_methods=['GET', 'POST'],
+                allowable_methods=["GET", "POST"],
                 # Exclui o parâmetro api_key ao comparar requisições para
                 # verificar se uma resposta armazenada pode ser usada. Isso
                 # impede que chaves de API diferentes invalidem o cache.
-                ignored_parameters=['api_key'],
+                ignored_parameters=["api_key"],
                 # Inclui o cabeçalho Accept-Language como critério para
                 # diferenciar as respostas no cache. Por exemplo, respostas para
                 # diferentes idiomas serão armazenadas separadamente.
-                match_headers=['Accept-Language'],
+                match_headers=["Accept-Language"],
                 # Quando ocorre um erro de requisição (como falha na conexão
                 # ou timeout), o sistema usa dados do cache considerados
                 # "obsoletos", se disponíveis. Isso evita interrupções no
                 # serviço, mesmo que os dados estejam desatualizados.
                 stale_if_error=True,
-
             )
             cls._session = requests.Session()
         return cls._session
 
     @classmethod
     def request_with_retry(
-            cls,
-            url: str,
-            method: str = "GET",
-            **kwargs,
+        cls,
+        url: str,
+        method: str = "GET",
+        **kwargs,
     ) -> requests.Response:
         """
         Realiza uma requisição HTTP com tentativas automáticas de retry em caso
@@ -191,8 +190,9 @@ class RequestHandler:
         timeout_read = kwargs.get("timeout_read", TIMEOUT_READ)
         retries = kwargs.get("retries", DEFAULT_RETRIES)
         backoff_factor = kwargs.get("backoff_factor", DEFAULT_BACKOFF_FACTOR)
-        status_forcelist = kwargs.get("status_forcelist",
-                                      DEFAULT_STATUS_FORCELIST)
+        status_forcelist = kwargs.get(
+            "status_forcelist", DEFAULT_STATUS_FORCELIST
+        )
 
         # Criação e configuração da sessão HTTP
         session = cls.get_session()
@@ -213,20 +213,22 @@ class RequestHandler:
 
         try:
             logger.debug(
-                f"Realizando {method} em {url} ... kwargs: {kwargs} ...")
+                f"Realizando {method} em {url} ... kwargs: {kwargs} ..."
+            )
 
             # Mapeamento de métodos HTTP suportados
             http_methods = {
                 "GET": session.get,
                 "POST": session.post,
                 "PUT": session.put,
-                "DELETE": session.delete
+                "DELETE": session.delete,
             }
 
             # Verifica se o método HTTP fornecido é válido
             if method.upper() not in http_methods:
                 raise ValueError(
-                    f"Método HTTP inválido: {method}. Use 'GET', 'POST', 'PUT' ou 'DELETE'.")
+                    f"Método HTTP inválido: {method}. Use 'GET', 'POST', 'PUT' ou 'DELETE'."
+                )
 
             # Realiza a requisição HTTP de acordo com o método especificado
             response = http_methods[method.upper()](
@@ -257,11 +259,13 @@ class RequestHandler:
 
         except requests.exceptions.HTTPError as err:
             logger.error(
-                f"Erro HTTP ao acessar {url}. Código: {err.response.status_code}, Erro: {err}")
+                f"Erro HTTP ao acessar {url}. Código: {err.response.status_code}, Erro: {err}"
+            )
             raise
         except requests.exceptions.ReadTimeout as err:
             logger.error(
-                f"O servidor está demorando muito para responder. {err}")
+                f"O servidor está demorando muito para responder. {err}"
+            )
             raise
         except RequestsConnectionError as err:
             logger.warning(f"Erro de conexão ao acessar o servidor. {err}")
@@ -271,7 +275,8 @@ class RequestHandler:
             raise
         except requests.exceptions.RetryError as err:
             logger.error(
-                f"Excedido o número máximo de tentativas devido a falhas recorrentes. {err}")
+                f"Excedido o número máximo de tentativas devido a falhas recorrentes. {err}"
+            )
             raise
         except requests.exceptions.RequestException as err:
             logger.error(f"Erro geral de requisição ao acessar {url}. {err}")
@@ -466,7 +471,8 @@ class RequestHandler:
             return BeautifulSoup(content, "html.parser")
         except FileNotFoundError as err:
             raise FileNotFoundError(
-                f"Arquivo não encontrado: {file_path}. Erro: {err}") from err
+                f"Arquivo não encontrado: {file_path}. Erro: {err}"
+            ) from err
         except Exception as err:
             logger.error(f"Erro ao processar o arquivo {file_path}: {err}")
             raise
@@ -552,13 +558,17 @@ class RequestHandler:
         cache_size = len(cache_keys)  # Conta as URLs no cache
 
         # Calcular o tamanho total do cache
-        total_cache_size = sum(len(response.content) for response in
-                               cache_backend.responses.values())
+        total_cache_size = sum(
+            len(response.content)
+            for response in cache_backend.responses.values()
+        )
 
-        logger.info(f"REQUEST CACHE: Número de requisições armazenadas: "
-                    f"{cache_size}; Tamanho total do cache: "
-                    f"{round(total_cache_size / (1024 ** 2), 4)} MB "
-                    f"(aproximado)")
+        logger.info(
+            f"REQUEST CACHE: Número de requisições armazenadas: "
+            f"{cache_size}; Tamanho total do cache: "
+            f"{round(total_cache_size / (1024 ** 2), 4)} MB "
+            f"(aproximado)"
+        )
 
         if show_urls:
             logger.info("\nREQUEST CACHE: URLs armazenadas no cache:")
@@ -566,9 +576,9 @@ class RequestHandler:
                 response = cache_backend.responses[url_hash]
                 url = response.request.url
                 expiration = response.expires
-                logger.info(f"REQUEST CACHE: - URL: {url}; "
-                            f"Data de Expiração: {expiration}; "
-                            f"Tamanho da Resposta: "
-                            f"{round(len(response.content) / (1024 ** 2), 4)} MB")
-
-
+                logger.info(
+                    f"REQUEST CACHE: - URL: {url}; "
+                    f"Data de Expiração: {expiration}; "
+                    f"Tamanho da Resposta: "
+                    f"{round(len(response.content) / (1024 ** 2), 4)} MB"
+                )

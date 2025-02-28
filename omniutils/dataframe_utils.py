@@ -6,8 +6,8 @@ from typing import List, Literal, Optional, Tuple
 import pandas as pd
 from pandas._typing import DateTimeErrorChoices
 
-from exceptions import DataFrameFormatError
-from text_utils import TextUtils
+from .exceptions import DataFrameFormatError
+from .text_utils import TextUtils
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,7 @@ class DataFrameUtils:
     Todos os métodos são implementados como estáticos, permitindo seu uso sem necessidade
     de instanciar a classe.
     """
+
     @staticmethod
     def filter_rows_by_keywords(
         df: pd.DataFrame, keywords: list[str], column_name: Optional[str] = None
@@ -177,7 +178,7 @@ class DataFrameUtils:
         print(idx)
 
         # Saída:
-        # 3 # Índice da próxima linha com todos os valores NaN
+        # 2 # Índice da próxima linha com todos os valores NaN
         ```
 
         Notas:
@@ -808,7 +809,9 @@ class DataFrameUtils:
         if col:
             # Verifica se a coluna especificada existe no DataFrame
             if col not in df.columns:
-                raise DataFrameFormatError(f"A coluna '{col}' não existe no DataFrame.")
+                raise DataFrameFormatError(
+                    f"A coluna '{col}' não existe no DataFrame."
+                )
 
             # Busca apenas na coluna especificada
             for index, value in df[col].items():
@@ -890,7 +893,9 @@ class DataFrameUtils:
         if col:
             # Verifica se a coluna especificada existe no DataFrame
             if col not in df.columns:
-                raise DataFrameFormatError(f"A coluna '{col}' não existe no DataFrame.")
+                raise DataFrameFormatError(
+                    f"A coluna '{col}' não existe no DataFrame."
+                )
 
             # Busca apenas na coluna especificada
             for index, value in df[col].items():
@@ -1093,8 +1098,9 @@ class DataFrameUtils:
                     f"Erro ao converter '{valor}' para float: " f"{e}"
                 ) from e
         else:
-            raise DataFrameFormatError(f"Nenhum valor encontrado na string: "
-                                       f"'{valor}'")
+            raise DataFrameFormatError(
+                f"Nenhum valor encontrado na string: " f"'{valor}'"
+            )
 
     @staticmethod
     def find_first_row_with_keyword(df: pd.DataFrame, keyword: str) -> int:
@@ -1225,8 +1231,10 @@ class DataFrameUtils:
                 if isinstance(value, str) and value.lower() != "none":
                     return value.upper()
             except ValueError as e:
-                logger.warning(f"Falha ao converter para maiúscula: {e}. "
-                               f"Retornando o valor original: {value}.")
+                logger.warning(
+                    f"Falha ao converter para maiúscula: {e}. "
+                    f"Retornando o valor original: {value}."
+                )
             return value  # Retorna o valor original se não for convertível
 
         # Aplica a conversão segura a cada elemento do DataFrame
@@ -1275,27 +1283,35 @@ class DataFrameUtils:
         # Verifica se warnings foram fornecidos
         if w is not None:
             # Filtra os warnings para identificar DtypeWarning
-            dtype_warnings = [warning for warning in w if
-                              issubclass(warning.category,
-                                         pd.errors.DtypeWarning)]
+            dtype_warnings = [
+                warning
+                for warning in w
+                if issubclass(warning.category, pd.errors.DtypeWarning)
+            ]
             columns_index_mixed = []
             if dtype_warnings:
                 for dtype_warning in dtype_warnings:
                     warning_message = str(dtype_warning.message)
-                    logger.warning(f"DtypeWarning detectado: {warning_message}."
-                                   f" Analisando colunas com possíveis tipos "
-                                   f"mistos...")
+                    logger.warning(
+                        f"DtypeWarning detectado: {warning_message}."
+                        f" Analisando colunas com possíveis tipos "
+                        f"mistos..."
+                    )
                     # Expressão regular para encontrar números entre parênteses
                     # após "Columns"
-                    match = re.search(r"Columns \((.*?)\)",
-                                      warning_message)
+                    match = re.search(r"Columns \((.*?)\)", warning_message)
                     if match:
                         # Divide os números encontrados e converte para inteiros
-                        columns_index_mixed.extend([int(index.strip())
-                                for index in match.group(1).split(",")])
+                        columns_index_mixed.extend(
+                            [
+                                int(index.strip())
+                                for index in match.group(1).split(",")
+                            ]
+                        )
                 # Obtém os nomes das colunas com tipos mistos
-                columns_mixed = [df.columns[index] for index
-                                 in columns_index_mixed]
+                columns_mixed = [
+                    df.columns[index] for index in columns_index_mixed
+                ]
             return columns_mixed
 
         # Analisa o DataFrame em busca de colunas com tipos mistos
@@ -1308,4 +1324,3 @@ class DataFrameUtils:
                 columns_mixed.append(coluna)
 
         return columns_mixed
-
