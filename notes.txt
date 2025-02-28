@@ -4,3 +4,7 @@ pytest --maxfail=1 --disable-warnings -q
 # Run pre-commit hooks
 pre-commit run --all-file
 
+# Run pre-commit hooks on pre-push
+pre-commit install --hook-type pre-push
+pre-commit install --hook-type pre-push --overwrite
+
