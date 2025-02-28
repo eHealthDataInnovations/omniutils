@@ -1,0 +1,2 @@
+# Execute all tests
+pytest --maxfail=1 --disable-warnings -q
