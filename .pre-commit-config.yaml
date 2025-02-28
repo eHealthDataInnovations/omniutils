@@ -38,7 +38,7 @@ repos:
       - id: codespell
         name: Spell Checker
 #        files: ^(apps|djud|deploy|pre-commit-bin)/
-        args: []
+        args: ["--ignore-words=.codespellrc-ignore-words.txt"]
         stages: [pre-commit, pre-push]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
