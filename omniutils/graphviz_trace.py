@@ -1,11 +1,17 @@
 import functools
 import logging
 import os
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod  # pylint: disable=no-name-in-module
 from typing import Callable
 
-from pycallgraph2 import Color, Config, GlobbingFilter, Grouper, PyCallGraph
-from pycallgraph2.output import GraphvizOutput
+from pycallgraph2 import (  # type: ignore
+    Color,
+    Config,
+    GlobbingFilter,
+    Grouper,
+    PyCallGraph,
+)
+from pycallgraph2.output import GraphvizOutput  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +61,6 @@ class GraphTracerAbstract(ABC):
         Retorna:
             GlobbingFilter: Objeto que configura os filtros de rastreamento.
         """
-        pass
 
     @abstractmethod
     @classmethod
@@ -69,7 +74,6 @@ class GraphTracerAbstract(ABC):
         Retorna:
             Grouper: Objeto que configura o agrupamento das chamadas.
         """
-        pass
 
     @classmethod
     def rainbow(cls, node) -> Color:
@@ -212,15 +216,15 @@ class GraphTracerAbstract(ABC):
             graphviz.graph_attributes["graph"]["label"] = full_method_name
 
             logger.debug(
-                f"Graphviz - gerando diagrama do trace da função "
-                f"{full_method_name}..."
+                "Graphviz - gerando diagrama do trace da função %s...",
+                full_method_name,
             )
 
             with PyCallGraph(output=graphviz, config=cls.get_config()):
                 result = func(*args, **kwargs)
 
             logger.debug(
-                f"Diagrama salvo em {os.path.abspath(graphviz.output_file)}"
+                "Diagrama salvo em %s", os.path.abspath(graphviz.output_file)
             )
             return result
 

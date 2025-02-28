@@ -1,7 +1,7 @@
-import codecs
 import logging
 import re
 import unicodedata
+from codecs import decode  # pylint: disable=no-name-in-module
 from datetime import datetime
 from typing import List, Optional, Union
 
@@ -216,7 +216,7 @@ class TextUtils:
             number = match.group(1)
             keyword_match = re.search(
                 rf"\b(?:{keywords_pattern})\b",
-                text[match.end() :],
+                text[match.end()],
                 re.IGNORECASE,
             )
             keyword = keyword_match.group(0).upper() if keyword_match else None
@@ -346,7 +346,7 @@ class TextUtils:
             stopwords = STOPWORDS
         stopwords_pattern = "|".join(map(re.escape, stopwords))
         if keyword:
-            pattern = rf"{re.escape(keyword)}\s*(?::\s*)?(?:{stopwords_pattern})*\s*(?:\((?P<conteudo1>[^)]+)\)|(?P<conteudo2>\S+.*))"  # pylint: disable=line-too-long
+            pattern = rf"{re.escape(keyword)}\s*(?::\s*)?(?:{stopwords_pattern})*\s*(?:\((?P<conteudo1>[^)]+)\)|(?P<conteudo2>\S+.*))"  # pylint: disable=line-too-long  # noqa: E501
         else:
             pattern = r"\((?P<conteudo>[^)]+)\)"
         match = re.search(pattern, text, re.IGNORECASE)
@@ -389,28 +389,6 @@ class TextUtils:
                  caracteres especiais, se especificado. Retorna uma string
                  vazia se a palavra-chave não for encontrada.
 
-        Exemplo:
-            ```python
-                text = "Valor da caixa com 120 [comprimidos.]"
-                special_chars_pattern = r'[\[\]{}\\(),.:;!?@#%^&*+=~`|<>"\'-]'
-
-                TextUtils.extract_content_after_keyword(
-                    text,
-                    keyword='Valor',
-                    stopwords=[' ', 'da', 'caixa', 'com'],
-                    special_chars_pattern=special_chars_pattern,
-                )
-                Saída: "120 comprimidos"
-            ```
-
-            extract_content_after_keyword(
-                 'Produto: válido [ABC-123], especial - em estoque.',
-                 'Produto',
-                 ['válido' ,'especial', 'em'],
-                 r'[\\[\\],.-]'
-            )
-            'ABC123 estoque'
-
         Detalhes da Implementação:
             - **Palavra-chave**: O método localiza a palavra-chave usando
               `re.search` com correspondência insensível a
@@ -444,7 +422,8 @@ class TextUtils:
 
         # Constrói a regex para capturar o conteúdo após a palavra-chave,
         # ignorando caracteres e stopwords especificadas
-        pattern = rf"{re.escape(keyword)}\s*(?::\s*)?(?:{stopwords_pattern})*\s*(?P<conteudo>\S+.*)"  # pylint: disable=line-too-long
+        pattern = rf"{re.escape(keyword)}\s*(?::\s*)?(?:{stopwords_pattern})\
+        *\s*(?P<conteudo>\S+.*)"
 
         # Usa regex para encontrar o padrão, ignorando maiúsculas/minúsculas
         match = re.search(pattern, text, re.IGNORECASE)
@@ -839,7 +818,7 @@ class TextUtils:
 
         # Se a string contém caracteres unicode escapados, decodificá-la
         if unicode_escape_pattern.search(text):
-            text = codecs.decode(text, "unicode_escape")
+            text = decode(text, "unicode_escape")
 
         # Certificar-se de que a string esteja em formato UTF-8
         return text.encode("utf-8").decode("utf-8")
@@ -900,12 +879,13 @@ class TextUtils:
 
             # Não é inteiro, retorna float.
             return str(float_value)
-        except ValueError as e:
+        except ValueError as err:
             logger.warning(
-                f"Falha ao converter valor: {e}. "
-                f"Retornando o valor original: {value}."
+                "Falha ao converter valor: %s. Retornando o valor "
+                "original: %s.",
+                err,
+                value,
             )
-            return value
         return str(value)
 
     @staticmethod
@@ -1107,7 +1087,7 @@ class TextUtils:
             try:
                 # Converte a string de data para um objeto datetime
                 datetime_dates.append(datetime.strptime(date, "%d/%m/%Y"))
-            except ValueError as e:
+            except ValueError as err:
                 # Ignora datas inválidas
-                print(f"Erro ao converter '{date}' para datetime: {e}")
+                print(f"Erro ao converter '{date}' para datetime: {err}")
         return datetime_dates

@@ -1,2 +1,6 @@
 # Execute all tests
 pytest --maxfail=1 --disable-warnings -q
+
+# Run pre-commit hooks
+pre-commit run --all-file
+

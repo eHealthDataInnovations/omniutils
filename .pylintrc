@@ -1,5 +1,6 @@
 [MASTER]
 ignore=.github,submodules
+#ignored-modules=logging,htmldate,requests,requests_cache,bs4,requests.adapters,requests.exceptions,urllib3,pytest,numpy,pandas
 
 # Caminho de módulos adicionais a serem incluídos.
 # init-hook='import sys; sys.path.append("submodules/app")'
@@ -16,6 +17,20 @@ ignore=.github,submodules
 
 # Definir o encoding padrão
 # encoding=utf-8
+
+[BASIC]
+# Nomes considerados bons mesmo que não estejam em snake_case.
+good-names=i,j,k,ex,Run,_,df,dt
+
+# Permite nomes de argumentos que sejam:
+# - em snake_case com até 30 caracteres
+# - ou o nome 'df'
+argument-rgx=[a-z_][a-z0-9_]{0,30}$|^(df)$
+
+[TYPECHECK]
+# Ignorar certos erros de tipagem para evitar avisos desnecessários
+ignored-modules=os,os.path,pytest,numpy,pandas,openpyxl,htmldate,requests,requests_cache,bs4,requests.adapters,requests.exceptions,urllib3,pycallgraph2
+#ignored-classes=builtins.object,QLObjectS,SQLAlchemy,sqlalchemy.orm.decl_api.Base,optparse.Values,thread._local,_thread._local
 
 [MESSAGES CONTROL]
 # Desabilitar categorias de mensagens específicas
@@ -46,8 +61,11 @@ max-line-length=80
 # Número de linhas permitidas em uma função antes do aviso
 # max-function-length=50
 
+# Número de linhas permitidas em um módulo antes do aviso
+max-module-lines=1500
+
 # Número de linhas antes e depois de uma função ou classe
-function-rgx=[a-z_][a-z0-9_]{2,30}$
+function-rgx=[a-z_][a-z0-9_]{2,40}$
 
 # Separação de seções e importações
 good-names=i,j,k,ex,Run,_,pk,id,db
@@ -64,12 +82,6 @@ max-attributes=10  # Número máximo de atributos permitidos em uma classe
 min-public-methods=0  # Número mínimo de métodos públicos permitidos
 max-public-methods=20  # Número máximo de métodos públicos permitidos
 
-[TYPECHECK]
-# Ignorar certos erros de tipagem para evitar avisos desnecessários
-ignored-modules=logging,django
-ignored-classes=builtins.object,QLObjectS,SQLAlchemy,sqlalchemy.orm.decl_api.Base,optparse.Values,thread._local,_thread._local
-
-
 # [IMPORTS]
 # Permitir imports padrão mesmo se não usados explicitamente no código
 # known-standard-library=numpy, pandas, os, sys
@@ -77,5 +89,5 @@ ignored-classes=builtins.object,QLObjectS,SQLAlchemy,sqlalchemy.orm.decl_api.Bas
 
 [LOGGING]
 # Configura o nível de logging
-logging-format-style=new
+# logging-format-style=new
 logging-modules=logging

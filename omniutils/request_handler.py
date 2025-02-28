@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 from http.client import IncompleteRead
 from typing import Dict, Optional
 
-import htmldate
+import htmldate  # type: ignore
 import requests
-import requests_cache
+import requests_cache  # type: ignore
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ChunkedEncodingError
@@ -40,7 +40,8 @@ DEFAULT_STATUS_FORCELIST = [
     429,  # Too Many Requests -  Indica que o cliente enviou muitas requisições
     # em um curto período de tempo.
     500,  # Internal Server Error -  Um erro genérico indicando que o servidor
-    # encontrou uma condição inesperada que impediu o processamento da requisição.
+    # encontrou uma condição inesperada que impediu o processamento da
+    # requisição.
     502,  # Bad Gateway -  Indica que o servidor (ou gateway) recebeu uma
     # resposta inválida do servidor upstream (servidor de origem).
     503,  # Service Unavailable -  O servidor está temporariamente indisponível,
@@ -62,14 +63,18 @@ class RequestHandler:
     Métodos:
         - get_session() -> requests.Session:
             Retorna uma sessão HTTP configurada com cache.
-        - request_with_retry(url: str, method: str, **kwargs) -> requests.Response:
+        - request_with_retry(url: str,
+                             method: str, **kwargs) -> requests.Response:
             Realiza uma requisição HTTP com retry automático.
         - get_last_modified(url: str) -> Optional[datetime]:
             Obtém a data de última modificação de uma página web.
-        - download_file(url: str, filename_path: str, headers: Optional[Dict]) -> str:
-            Faz o download de um arquivo a partir de uma URL e o salva localmente.
+        - download_file(url: str, filename_path: str,
+                        headers: Optional[Dict]) -> str:
+            Faz o download de um arquivo a partir de uma URL e o salva
+            localmente.
         - get_soap_by_url(url: str) -> BeautifulSoup:
-            Retorna um objeto BeautifulSoup com o conteúdo HTML obtido de uma URL.
+            Retorna um objeto BeautifulSoup com o conteúdo HTML obtido de uma
+            URL.
         - get_soap_from_file(file_path: str) -> BeautifulSoup:
             Lê um arquivo HTML e retorna um objeto BeautifulSoup.
         - check_internet_access(url: str, timeout: int) -> bool:
@@ -132,7 +137,7 @@ class RequestHandler:
                 # serviço, mesmo que os dados estejam desatualizados.
                 stale_if_error=True,
             )
-            cls._session = requests.Session()
+            cls._session = session
         return cls._session
 
     @classmethod
@@ -213,7 +218,10 @@ class RequestHandler:
 
         try:
             logger.debug(
-                f"Realizando {method} em {url} ... kwargs: {kwargs} ..."
+                "Realizando %s em %s ... kwargs: %s ...",
+                method,
+                url,
+                str(kwargs),
             )
 
             # Mapeamento de métodos HTTP suportados
@@ -227,7 +235,8 @@ class RequestHandler:
             # Verifica se o método HTTP fornecido é válido
             if method.upper() not in http_methods:
                 raise ValueError(
-                    f"Método HTTP inválido: {method}. Use 'GET', 'POST', 'PUT' ou 'DELETE'."
+                    f"Método HTTP inválido: {method}. Use 'GET', 'POST', 'PUT' "
+                    f"ou 'DELETE'."
                 )
 
             # Realiza a requisição HTTP de acordo com o método especificado
@@ -246,52 +255,63 @@ class RequestHandler:
             if response.status_code == 429:
                 retry_after = int(response.headers.get("Retry-After", 60))
                 logger.warning(
-                    f"Retry-After definido. Tentando novamente em {retry_after} segundos..."
+                    "Retry-After definido. Tentando novamente em %s"
+                    " segundos...",
+                    retry_after,
                 )
                 time.sleep(retry_after)
 
             # Levanta exceção se houver erro na resposta HTTP
             response.raise_for_status()
 
-            logger.debug(f"Requisição {method} para {url} bem-sucedida!")
+            logger.debug("Requisição %s para %s bem-sucedida!", method, url)
 
             return response
 
         except requests.exceptions.HTTPError as err:
             logger.error(
-                f"Erro HTTP ao acessar {url}. Código: {err.response.status_code}, Erro: {err}"
+                "Erro HTTP ao acessar %s. "
+                "Código: {err.response.status_code}, Erro: %s",
+                url,
+                err,
             )
             raise
         except requests.exceptions.ReadTimeout as err:
             logger.error(
-                f"O servidor está demorando muito para responder. {err}"
+                "O servidor está demorando muito para responder. Error: %s", err
             )
             raise
         except RequestsConnectionError as err:
-            logger.warning(f"Erro de conexão ao acessar o servidor. {err}")
+            logger.warning(
+                "Erro de conexão ao acessar o servidor. Erro: %s", err
+            )
             raise
         except requests.exceptions.Timeout as err:
-            logger.warning(f"Tempo limite excedido. {err}")
+            logger.warning("Tempo limite excedido. Erro: %s ", err)
             raise
         except requests.exceptions.RetryError as err:
             logger.error(
-                f"Excedido o número máximo de tentativas devido a falhas recorrentes. {err}"
+                "Excedido o número máximo de tentativas devido a falhas "
+                "recorrentes. Erro: %s",
+                err,
             )
             raise
         except requests.exceptions.RequestException as err:
-            logger.error(f"Erro geral de requisição ao acessar {url}. {err}")
+            logger.error("Erro geral de requisição ao acessar %s. %s", url, err)
             raise
 
     @classmethod
     def get_last_modified(cls, url: str) -> Optional[datetime]:
         """
-        Obtém a data de última modificação de uma página web utilizando htmldate.
+        Obtém a data de última modificação de uma página web utilizando
+        htmldate.
 
         Parâmetros:
             - url (str): A URL da página web.
 
         Retorna:
-            - Optional[datetime]: Objeto datetime representando a data da última modificação, ou None se não for possível determinar.
+            - Optional[datetime]: Objeto datetime representando a data da última
+                modificação, ou None se não for possível determinar.
 
         Exceções:
             - RequestException: Se ocorrer um erro na requisição.
@@ -312,20 +332,22 @@ class RequestHandler:
             if date_str:
                 last_modified = datetime.strptime(date_str, "%Y-%m-%d")
 
-            logger.debug(f"Page last modified: {last_modified} ...")
+            logger.debug("Page last modified: %s ...", last_modified)
             return last_modified
         except (RequestsConnectionError, Timeout) as conn_err:
             logger.warning(
-                f"Erro de conexão ou timeout ao acessar {url}: {conn_err}"
+                "Erro de conexão ou timeout ao acessar %s: Erro %s",
+                url,
+                conn_err,
             )
             return None
         except RequestException as req_err:
             logger.error(
-                f"Erro de requisição ao tentar acessar {url}: {req_err}"
+                "Erro de requisição ao tentar acessar %s: %s", url, req_err
             )
             return None
         except ValueError as val_err:
-            logger.error(f"Erro ao processar a data obtida: {val_err}")
+            logger.error("Erro ao processar a data obtida: %s", val_err)
             raise
 
     @classmethod
@@ -333,24 +355,27 @@ class RequestHandler:
         cls, url: str, filename_path: str, headers: Optional[Dict] = None
     ) -> str:
         """
-        Faz o download de um arquivo a partir de uma URL e salva no caminho especificado.
+        Faz o download de um arquivo a partir de uma URL e salva no caminho
+        especificado.
 
         Parâmetros:
             - url (str): A URL do arquivo a ser baixado.
             - filename_path (str): Caminho completo onde o arquivo será salvo.
-            - headers (Optional[Dict]): Cabeçalhos HTTP a serem enviados com a requisição.
-              Caso não seja fornecido, utiliza um dicionário vazio.
+            - headers (Optional[Dict]): Cabeçalhos HTTP a serem enviados com a
+              requisição. Caso não seja fornecido, utiliza um dicionário vazio.
 
         Retorna:
             - str: O caminho completo do arquivo baixado.
 
         Exceções:
-            - RequestsConnectionError: Se o download falhar após várias tentativas devido a IncompleteRead.
+            - RequestsConnectionError: Se o download falhar após várias
+                tentativas devido a IncompleteRead.
             - Exception: Para outros erros ocorridos durante o download.
 
         Exemplos de uso:
         ```python
-        local_file = RequestHandler.download_file("https://example.com/file.pdf", "/path/to/file.pdf")
+        local_file = RequestHandler.download_file(
+            "https://example.com/file.pdf", "/path/to/file.pdf")
         print(local_file)
         ```
         """
@@ -361,7 +386,7 @@ class RequestHandler:
 
         start_time = time.time()
         logger.debug(
-            f"Realizando o download do arquivo para {filename_path} ..."
+            "Realizando o download do arquivo para %s ...", filename_path
         )
         response = None
         try:
@@ -376,18 +401,19 @@ class RequestHandler:
                     filename_path = FileOperator.sanitize_filename(
                         filename_path
                     )
-                    with open(filename_path, "wb") as f:
+                    with open(filename_path, "wb") as file_wb:
                         for chunk in response.iter_content(chunk_size=8192):
                             if chunk:  # Filtra chunks keep-alive vazios
-                                f.write(chunk)
+                                file_wb.write(chunk)
 
                     return (
                         filename_path  # Download bem-sucedido, saindo do loop
                     )
-                except (ChunkedEncodingError, IncompleteRead) as e:
+                except (ChunkedEncodingError, IncompleteRead) as err:
                     logger.warning(
-                        f"IncompleteRead error: {e}. Retentando... "
-                        f"{3 - retry_count + 1}/3"
+                        "IncompleteRead error: %s. Retentando... %d/3",
+                        err,
+                        (3 - retry_count + 1),
                     )
                     retry_count -= 1
                     time.sleep(2)  # Pequeno intervalo entre as tentativas
@@ -396,13 +422,13 @@ class RequestHandler:
                 "Download falhou após várias tentativas devido a "
                 "IncompleteRead."
             )
-        except Exception as e:
-            logger.error(f"Erro: {e}")
+        except Exception as err:
+            logger.error("Erro: %s", err)
             raise
         finally:
             end_time = time.time()
             processing_time = end_time - start_time
-            logger.debug(f"Tempo decorrido: {processing_time:.2f} segundos")
+            logger.debug("Tempo decorrido: %.2f segundos", processing_time)
             if response:
                 response.close()
 
@@ -412,13 +438,15 @@ class RequestHandler:
     @classmethod
     def get_soap_by_url(cls, url: str) -> BeautifulSoup:
         """
-        Realiza uma requisição HTTP para a URL fornecida e retorna um objeto BeautifulSoup para análise do HTML.
+        Realiza uma requisição HTTP para a URL fornecida e retorna um objeto
+        BeautifulSoup para análise do HTML.
 
         Parâmetros:
             - url (str): A URL da página web a ser acessada.
 
         Retorna:
-            - BeautifulSoup: Objeto BeautifulSoup representando o conteúdo HTML da página.
+            - BeautifulSoup: Objeto BeautifulSoup representando o conteúdo HTML
+              da página.
 
         Exemplos de uso:
         ```python
@@ -444,7 +472,8 @@ class RequestHandler:
             - file_path (str): Caminho completo do arquivo HTML.
 
         Retorna:
-            - BeautifulSoup: Objeto BeautifulSoup representando o conteúdo do arquivo HTML.
+            - BeautifulSoup: Objeto BeautifulSoup representando o conteúdo do
+              arquivo HTML.
 
         Exceções:
             - FileNotFoundError: Se o arquivo não for encontrado.
@@ -474,25 +503,30 @@ class RequestHandler:
                 f"Arquivo não encontrado: {file_path}. Erro: {err}"
             ) from err
         except Exception as err:
-            logger.error(f"Erro ao processar o arquivo {file_path}: {err}")
+            logger.error("Erro ao processar o arquivo %s: %s", file_path, err)
             raise
 
     @classmethod
     def check_internet_access(
         cls, url="https://www.google.com", timeout=TIMEOUT_CONNECT
-    ):
+    ) -> bool:
         """
-        Verifica a disponibilidade de acesso à internet tentando acessar uma URL padrão.
+        Verifica a disponibilidade de acesso à internet tentando acessar uma
+        URL padrão.
 
         Parâmetros:
-            - url (str): A URL a ser acessada para verificar a conexão. Padrão: "https://www.google.com".
-            - timeout (int): Tempo máximo de espera (em segundos) para a resposta. Padrão: TIMEOUT_CONNECT.
+            - url (str): A URL a ser acessada para verificar a conexão. Padrão:
+                "https://www.google.com".
+            - timeout (int): Tempo máximo de espera (em segundos) para a
+                resposta. Padrão: TIMEOUT_CONNECT.
 
         Retorna:
-            - bool: True se a conexão for bem-sucedida; caso contrário, lança uma exceção.
+            - bool: True se a conexão for bem-sucedida; caso contrário, lança
+                uma exceção.
 
         Exceções:
-            - RequestsConnectionError: Se ocorrer um erro de conexão ou se o tempo limite for excedido.
+            - RequestsConnectionError: Se ocorrer um erro de conexão ou se o
+                tempo limite for excedido.
             - Timeout: Se a requisição exceder o tempo limite.
 
         Exemplos de uso:
@@ -520,13 +554,16 @@ class RequestHandler:
         except RequestsConnectionError as err:
             # Se ocorrer um erro de conexão, a máquina provavelmente está
             # sem acesso à internet
-            logger.warning(f"Internet indisponível! Erro: {err}")
+            logger.warning("Internet indisponível! Erro: %s", err)
             raise RequestsConnectionError(err) from err
         except requests.Timeout as err:
             # Se a requisição exceder o tempo limite, também pode indicar
             # problemas de conexão
-            logger.warning(f"Internet indisponível! Erro: {err}")
+            logger.warning("Internet indisponível! Erro: %s", err)
             raise RequestsConnectionError(err) from err
+
+        # Se o fluxo chegar aqui, algo inesperado ocorreu.
+        raise RuntimeError("Código inatingível em check_internet_access")
 
     @classmethod
     def show_cache_info(cls, show_urls: bool = False):
@@ -564,10 +601,10 @@ class RequestHandler:
         )
 
         logger.info(
-            f"REQUEST CACHE: Número de requisições armazenadas: "
-            f"{cache_size}; Tamanho total do cache: "
-            f"{round(total_cache_size / (1024 ** 2), 4)} MB "
-            f"(aproximado)"
+            "REQUEST CACHE: Número de requisições armazenadas: %s; "
+            "Tamanho total do cache: %s MB (aproximado)",
+            cache_size,
+            round(total_cache_size / (1024**2), 4),
         )
 
         if show_urls:
@@ -577,8 +614,9 @@ class RequestHandler:
                 url = response.request.url
                 expiration = response.expires
                 logger.info(
-                    f"REQUEST CACHE: - URL: {url}; "
-                    f"Data de Expiração: {expiration}; "
-                    f"Tamanho da Resposta: "
-                    f"{round(len(response.content) / (1024 ** 2), 4)} MB"
+                    "REQUEST CACHE: - URL: %s; Data de Expiração: %s; "
+                    "Tamanho da Resposta: %s MB",
+                    url,
+                    expiration,
+                    round(len(response.content) / (1024**2), 4),
                 )

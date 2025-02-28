@@ -2,6 +2,9 @@ from omniutils.dictionary_utils import DictionaryUtils
 
 
 def test_expand_lists_recursive_simple():
+    def sort_key(ditem):
+        return (ditem.get("tags"), ditem.get("meta__likes"))
+
     data = {
         "id": 1,
         "tags": ["python", "utils"],
@@ -17,5 +20,4 @@ def test_expand_lists_recursive_simple():
 
     # Ordena as listas de dicionários para uma comparação consistente,
     # ordenando pelas chaves 'tags' e 'meta__likes'.
-    sort_key = lambda d: (d.get("tags"), d.get("meta__likes"))
     assert sorted(expanded, key=sort_key) == sorted(expected, key=sort_key)

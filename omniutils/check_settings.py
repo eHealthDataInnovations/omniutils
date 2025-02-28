@@ -39,7 +39,9 @@ def check_settings():
         print(settings.DEBUG)
     ```
     """
-    BASE_DIR = Path(__file__).resolve().parent.parent
+    BASE_DIR = (  # pylint: disable=invalid-name
+        Path(__file__).resolve().parent.parent
+    )  # pylint: disable=invalid-name
     settings_path = os.path.join(BASE_DIR, "settings.py")
 
     # Verificar se o arquivo settings.py existe

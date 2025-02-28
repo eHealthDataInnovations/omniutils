@@ -1,10 +1,10 @@
 import json
 import logging
 import re
-from typing import List, Literal, Optional, Tuple
+import warnings
+from typing import Any, Hashable, List, Literal, Optional, Tuple
 
 import pandas as pd
-from pandas._typing import DateTimeErrorChoices
 
 from .exceptions import DataFrameFormatError
 from .text_utils import TextUtils
@@ -18,17 +18,19 @@ class DataFrameUtils:
     de DataFrames do pandas.
 
     Essa classe oferece funções para:
-      - Filtrar linhas por palavras-chave ou com base em um dicionário de condições.
+      - Filtrar linhas por palavras-chave ou com base em um dicionário de
+        condições.
       - Encontrar a próxima linha composta apenas por valores NaN.
       - Converter colunas para string com preenchimento customizado.
       - Normalizar dados JSON para DataFrames planos.
-      - Converter valores para tipos numéricos (inteiro ou float) de forma segura.
+      - Converter valores para tipos numéricos (inteiro ou float) de forma
+        segura.
       - Identificar células contendo datas ou valores numéricos em um DataFrame.
       - Tratar colunas com tipos mistos ou que contenham dicionários.
       - Realizar outras operações comuns de transformação e limpeza de dados.
 
-    Todos os métodos são implementados como estáticos, permitindo seu uso sem necessidade
-    de instanciar a classe.
+    Todos os métodos são implementados como estáticos, permitindo seu uso sem
+    necessidade de instanciar a classe.
     """
 
     @staticmethod
@@ -434,17 +436,17 @@ class DataFrameUtils:
         for column in df_copy.columns:
             try:
                 df_copy[column] = df_copy[column].apply(TextUtils.to_number_str)
-            except Exception as e:
+            except Exception as err:
                 raise DataFrameFormatError(
-                    f"Erro ao processar a coluna '{column}': {e}"
-                ) from e
+                    f"Erro ao processar a coluna '{column}': {err}"
+                ) from err
         return df_copy
 
     @staticmethod
     def to_str(
         arr_dtype: pd.Series,
         max_length: Optional[int] = None,
-        errors: DateTimeErrorChoices = "raise",
+        errors: Literal["raise", "coerce"] = "raise",
     ) -> pd.Series:
         """
         Converte uma coluna do Pandas para string, preenchendo com zeros
@@ -682,9 +684,9 @@ class DataFrameUtils:
         df: pd.DataFrame,
         col: Optional[str] = None,
         number_type: Literal["int", "float", "both"] = "both",
-    ) -> List[Tuple[int, str]]:
+    ) -> List[Tuple[Hashable, str]]:
         """
-        Procura todos os valores numéricos em um DataFrame, podendo buscar  em
+        Procura todos os valores numéricos em um DataFrame, podendo buscar em
         uma coluna específica ou no DataFrame inteiro, com opção de  especificar
          o tipo de número.
 
@@ -697,8 +699,8 @@ class DataFrameUtils:
                 "both". O padrão é "both".
 
         Retorna:
-            List[Tuple[int, str]]: Uma lista de tuplas contendo os índices das
-                linhas e os nomes das colunas onde valores numéricos foram
+            List[Tuple[Hashable,, str]]: Uma lista de tuplas contendo os índices
+                das linhas e os nomes das colunas onde valores numéricos foram
                 encontrados. Caso não encontre, retorna uma lista vazia.
 
         Exemplo:
@@ -755,81 +757,67 @@ class DataFrameUtils:
         df: pd.DataFrame,
         col: Optional[str] = None,
         date_format: str = r"\d{2}/\d{2}/\d{4}",
-    ) -> List[Tuple[int, str]]:
+    ) -> List[Tuple[Hashable, str]]:
         """
         Encontra linhas em um DataFrame que contêm datas no formato
         especificado, com a opção de buscar apenas em uma coluna específica.
 
         Parâmetros:
-        -----------
-        df : pd.DataFrame
-            O DataFrame a ser analisado.
-
-        date_format : str, opcional
-            Expressão regular para identificar datas. O padrão é `dd/mm/yyyy`.
-
-        col : str, opcional
-            Nome da coluna onde será feita a busca. Se None, a busca será
-            realizada em todas as colunas.
+            df (pd.DataFrame): O DataFrame a ser analisado.
+            date_format (str): Expressão regular para identificar datas. O
+                padrão é `dd/mm/yyyy`.
+            col (str, opcional): Nome da coluna onde será feita a busca. Se
+                None, a busca será realizada em todas as colunas.
 
         Retorna:
-        --------
-        list[tuple[int, str]]
-            Uma lista de tuplas no formato (índice, nome da coluna) para cada
-            célula que contém uma data no formato especificado. Caso não
-            encontre, retorna uma lista vazia.
+            - List[Tuple[Hashable, str]]: Uma lista de tuplas no formato (
+                índice, nome da coluna) para cada célula que contém uma data no
+                formato especificado. Caso não encontre, retorna uma lista
+                vazia.
 
         Exemplo:
-        --------
-        ```python
-        import pandas as pd
+            ```python
+            import pandas as pd
 
-        data = {
-            "Coluna1": ["Texto", "15/04/2023", "Outro texto"],
-            "Coluna2": ["10/10/2023", "Informação", "15/05/2024"],
-        }
-        df = pd.DataFrame(data)
+            data = {
+                "Coluna1": ["Texto", "15/04/2023", "Outro texto"],
+                "Coluna2": ["10/10/2023", "Informação", "15/05/2024"],
+            }
+            df = pd.DataFrame(data)
 
-        # Busca em todo o DataFrame
-        resultados = DataFrameUtils.find_rows_with_dates(df)
-        print(resultados)
-        # Saída:
-        # [(0, 'Coluna2'), (1, 'Coluna1'), (2, 'Coluna2')]
+            # Busca em todo o DataFrame
+            resultados = DataFrameUtils.find_rows_with_dates(df)
+            print(resultados)
+            # Possível saída: [(0, 'Coluna2'), (1, 'Coluna1'), (2, 'Coluna2')]
 
-        # Busca em uma coluna específica
-        resultados_coluna = DataFrameUtils.find_rows_with_dates(df,
-                                                                col="Coluna2")
-        print(resultados_coluna)
-        # Saída:
-        # [(0, 'Coluna2'), (2, 'Coluna2')]
-        ```
+            # Busca em uma coluna específica
+            resultados_coluna = DataFrameUtils.find_rows_with_dates(
+                df, col="Coluna2")
+            print(resultados_coluna)
+            # Possível saída: [(0, 'Coluna2'), (2, 'Coluna2')]
+            ```
         """
         matches = []
 
         if col:
-            # Verifica se a coluna especificada existe no DataFrame
             if col not in df.columns:
-                raise DataFrameFormatError(
-                    f"A coluna '{col}' não existe no DataFrame."
-                )
+                raise ValueError(f"A coluna '{col}' não existe no DataFrame.")
 
-            # Busca apenas na coluna especificada
             for index, value in df[col].items():
                 if isinstance(value, str) and re.search(date_format, value):
-                    matches.append((index, col))
+                    matches.append((index, str(col)))
         else:
-            # Busca em todas as colunas
             for index, row in df.iterrows():
                 for column, value in row.items():
                     if isinstance(value, str) and re.search(date_format, value):
-                        matches.append((index, column))
+                        matches.append((index, str(column)))
 
         return matches if matches else []
 
     @staticmethod
     def find_rows_with_keywords(
         df: pd.DataFrame, keywords: list[str], col: Optional[str] = None
-    ) -> List[Tuple[int, str]]:
+    ) -> List[Tuple[Hashable, str]]:
         """
         Encontra linhas em um DataFrame que contêm palavras-chave específicas,
         com a opção de buscar apenas em uma coluna.
@@ -848,7 +836,7 @@ class DataFrameUtils:
 
         Retorna:
         --------
-        list[tuple[int, str]]
+        list[tuple[Hashable, str]]
             Uma lista de tuplas no formato (índice, nome da coluna) para cada
             célula que contém uma palavra-chave. Caso nenhuma correspondência
             seja encontrada, retorna uma lista vazia.
@@ -910,7 +898,7 @@ class DataFrameUtils:
                     if isinstance(value, str) and re.search(
                         rf"\b({keywords_pattern})\b", value, flags=re.IGNORECASE
                     ):
-                        matches.append((index, column))
+                        matches.append((index, str(column)))
 
         return matches if matches else []
 
@@ -1029,17 +1017,18 @@ class DataFrameUtils:
             return arr_dtype
 
         # Converte os valores não escalares
-        def safe_convert_to_int(x):
-            if pd.isna(x):
+        def safe_convert_to_int(value):
+            if pd.isna(value):
                 return None
-            if pd.api.types.is_scalar(x):
+            if pd.api.types.is_scalar(value):
                 try:
-                    return int(x)
-                except (ValueError, TypeError) as e:
+                    return int(value)
+                except (ValueError, TypeError) as err:
                     raise DataFrameFormatError(
-                        f"Valor  {x} inválido para conversão, " f"error: {e}"
-                    ) from e
-            raise DataFrameFormatError(f"Valor não escalar encontrado: {x}")
+                        f"Valor  {value} inválido para conversão, "
+                        f"error: {err}"
+                    ) from err
+            raise DataFrameFormatError(f"Valor não escalar encontrado: {value}")
 
         # Aplica a conversão segura e retorna como Int64
         return arr_dtype.apply(safe_convert_to_int).astype("Int64")
@@ -1092,11 +1081,11 @@ class DataFrameUtils:
                     value = value.replace(".", "", value.count(".") - 1)
                 # Converte para float
                 return float(value)
-            except ValueError as e:
+            except ValueError as err:
                 # Levanta uma exceção específica se a conversão falhar
                 raise DataFrameFormatError(
-                    f"Erro ao converter '{valor}' para float: " f"{e}"
-                ) from e
+                    f"Erro ao converter '{valor}' para float: " f"{err}"
+                ) from err
         else:
             raise DataFrameFormatError(
                 f"Nenhum valor encontrado na string: " f"'{valor}'"
@@ -1189,66 +1178,81 @@ class DataFrameUtils:
 
         Este método verifica cada elemento do DataFrame e converte os valores
         do tipo string para letras maiúsculas. Ele ignora valores nulos
-        (`None`) e strings específicas como `"None"`, além de tratar erros
+        (`None`) e strings específicas como "None", além de tratar erros
         durante a conversão, garantindo que os dados sejam padronizados e
         consistentes para operações futuras.
 
         Parâmetros:
             df (pd.DataFrame): O DataFrame a ser processado.
 
-        Retorno:
+        Retorna:
             pd.DataFrame: O DataFrame com as strings convertidas para letras
                           maiúsculas.
 
         Notas:
-            - Strings contendo `"None"` (literal) não são convertidas para
-              maiúsculas.
+            - Strings contendo "None" (literal) não são convertidas para
+                maiúsculas.
             - Valores nulos ou não string permanecem inalterados.
             - Caso ocorra um erro ao processar um valor, ele será retornado no
               formato original.
 
         Exemplo de Uso:
         ```python
-            import pandas as pd
-            data = {
-            ...     "col1": ["abc", None, "123", "None"],
-            ...     "col2": ["xyz", "123", "None", None],
-            ... }
-            df = pd.DataFrame(data)
-            df = DataFrameUtils.to_uppercase(df)
-            print(df)
-               col1   col2
-            0   ABC    XYZ
-            1  None    123
-            2   123   None
-            3  None   None
+        import pandas as pd
+        data = {
+            "col1": ["abc", None, "123", "None"],
+            "col2": ["xyz", "123", "None", None],
+        }
+        df = pd.DataFrame(data)
+        df = DataFrameUtils.to_uppercase(df)
+        print(df)
+           col1   col2
+        0   ABC    XYZ
+        1  None    123
+        2   123   None
+        3  None   None
         ```
         """
 
-        def safe_uppercase(value):
+        def safe_uppercase(value: Any) -> Any:
+            """
+            Tenta converter um valor para letras maiúsculas se for uma string
+            (exceto "none").
+
+            Parâmetros:
+                value (Any): O valor a ser processado.
+
+            Retorna:
+                Any: O valor convertido para letras maiúsculas, se possível;
+                     caso contrário, o valor original.
+            """
             try:
-                # Converte apenas se for string e não for 'None'
                 if isinstance(value, str) and value.lower() != "none":
                     return value.upper()
-            except ValueError as e:
+            except (ValueError, TypeError) as err:
                 logger.warning(
-                    f"Falha ao converter para maiúscula: {e}. "
-                    f"Retornando o valor original: {value}."
+                    "Falha ao converter para maiúscula: %s. Retornando o "
+                    "valor original: %s",
+                    err,
+                    value,
                 )
-            return value  # Retorna o valor original se não for convertível
+            return value
 
         # Aplica a conversão segura a cada elemento do DataFrame
-        return df.applymap(safe_uppercase)
+        return df.applymap(safe_uppercase)  # type: ignore
 
-    def check_for_mixed_types(df: pd.DataFrame, w: list = None) -> list:
+    @staticmethod
+    def check_for_mixed_types(
+        df: pd.DataFrame, w: Optional[List[warnings.WarningMessage]] = None
+    ) -> List:
         """
         Detecta colunas com tipos mistos em um DataFrame e verifica se um
         DtypeWarning está presente.
 
         Esta função identifica colunas em um DataFrame que possuem tipos de
-        dados  mistos. Caso uma lista de warnings capturados seja fornecida,
-        ela verifica  se há DtypeWarning e exibe uma mensagem informativa se d
-        etectado.  A função retorna os nomes das colunas com tipos
+        dados mistos. Caso uma lista de warnings capturados seja fornecida,
+        ela verifica se há DtypeWarning e exibe uma mensagem informativa se
+        detectado.  A função retorna os nomes das colunas com tipos
         inconsistentes.
 
         Parâmetros:
@@ -1293,9 +1297,9 @@ class DataFrameUtils:
                 for dtype_warning in dtype_warnings:
                     warning_message = str(dtype_warning.message)
                     logger.warning(
-                        f"DtypeWarning detectado: {warning_message}."
-                        f" Analisando colunas com possíveis tipos "
-                        f"mistos..."
+                        "DtypeWarning detectado: %s. Analisando colunas com "
+                        "possíveis tipos mistos...",
+                        warning_message,
                     )
                     # Expressão regular para encontrar números entre parênteses
                     # após "Columns"

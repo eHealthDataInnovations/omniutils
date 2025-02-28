@@ -50,7 +50,7 @@ class FileOperator:
 
         # Renomeia completamente o arquivo:
         novo_caminho = FileOperator.rename_file(filename_path,
-                                                new_name="novo_nome.txt")
+            new_name="novo_nome.txt")
         print(novo_caminho)  # Exemplo: "/caminho/para/novo_nome.txt"
 
         # Adiciona um texto ao nome original:
@@ -58,10 +58,9 @@ class FileOperator:
         print(novo_caminho)  # Exemplo: "/caminho/para/arquivo_v2.txt"
         ```
         """
-
         if new_name is None and insert_text is None:
             raise ValueError(
-                "Argumentos new_name e word não não ser nulos. "
+                "Argumentos new_name e insert_text não podem ser ambos nulos. "
                 "Informe ao menos um."
             )
         if new_name and not isinstance(new_name, str):
@@ -81,7 +80,7 @@ class FileOperator:
 
         directory = os.path.dirname(filename_path)
 
-        new_path = None
+        new_path: Optional[str] = None
         if new_name:
             new_path = os.path.join(directory, new_name)
         elif insert_text:
@@ -90,10 +89,12 @@ class FileOperator:
             filename = f"{filename_without_extension}_{insert_text}{extension}"
             new_path = os.path.join(directory, filename)
 
-        if new_path:
-            os.rename(filename_path, new_path)
+        # Garantir que new_path não seja None
+        if new_path is None:
+            raise ValueError("Falha ao calcular o novo caminho para o arquivo.")
 
-        logger.debug(f"Arquivo renomeado para: {new_path}")
+        os.rename(filename_path, new_path)
+        logger.debug("Arquivo renomeado para: %s", new_path)
         return new_path
 
     @classmethod
@@ -118,7 +119,7 @@ class FileOperator:
         """
         if not new_extension.startswith("."):
             raise InvalidFileFormatError(
-                "A nova extensão deve começar com um " "ponto ('.')."
+                "A nova extensão deve começar com um ponto ('.')."
             )
 
         path = Path(file_path)
@@ -164,12 +165,12 @@ class FileOperator:
 
         if new_extension is None:
             raise InvalidFileFormatError(
-                "A nova extensão do arquivo não pode " "ser nula."
+                "A nova extensão do arquivo não pode ser nula."
             )
 
         if not new_extension.startswith("."):
             raise InvalidFileFormatError(
-                "A nova extensão deve começar com um " "ponto ('.')."
+                "A nova extensão deve começar com um ponto ('.')."
             )
 
         # Cria um objeto Path para manipular o caminho
@@ -348,7 +349,11 @@ class FileOperator:
             "creation_time": creation_time,
             "last_modified": last_modified,
         }
-        logger.debug(f"File info: {file_info}")
+        logger.debug(
+            "File info: creation_time=%(creation_time)s, "
+            "last_modified=%(last_modified)s",
+            file_info,
+        )
         return file_info
 
     @classmethod
@@ -404,9 +409,9 @@ class FileOperator:
         path = Path(directory_path)
         if not path.exists():
             path.mkdir(parents=True, exist_ok=True)
-            logger.debug(f"Diretório '{directory_path}' criado.")
+            logger.debug("Diretório '%s' criado.", directory_path)
         else:
-            logger.debug(f"Diretório '{directory_path}' já existe.")
+            logger.debug("Diretório '%s' já existe.", directory_path)
         return directory_path
 
     @classmethod
@@ -436,19 +441,22 @@ class FileOperator:
                     os.unlink(file_path)  # Remove arquivos ou links simbólicos
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)  # Remove subdiretórios
-            except FileNotFoundError as e:
+            except FileNotFoundError as err:
                 logger.warning(
-                    f"Arquivo não encontrado ao tentar deletar {file_path}. "
-                    f"Ignorando: {e}"
+                    "Arquivo não encontrado ao tentar deletar %s. "
+                    "Ignorando: %s",
+                    file_path,
+                    err,
                 )
-            except PermissionError as e:
+            except PermissionError as err:
                 logger.error(
-                    f"Permissão negada ao tentar deletar {file_path}. "
-                    f"Razão: {e}"
+                    "Permissão negada ao tentar deletar %s. Razão: %s",
+                    file_path,
+                    err,
                 )
-            except OSError as e:
+            except OSError as err:
                 logger.error(
-                    f"Erro ao acessar ou deletar {file_path}. Razão: {e}"
+                    "Erro ao acessar ou deletar %s. Razão: %s", file_path, err
                 )
 
     @classmethod
@@ -564,9 +572,9 @@ class FileOperator:
         """
         if cls.file_exists(filename_path):
             os.remove(filename_path)
-            logger.debug(f"Arquivo {filename_path} foi excluído com sucesso.")
+            logger.debug("Arquivo %s foi excluído com sucesso.", filename_path)
         else:
-            logger.debug(f"Arquivo {filename_path} não encontrado.")
+            logger.debug("Arquivo %s não encontrado.", filename_path)
 
     @classmethod
     def check_path_like(cls, path: str) -> bool:
@@ -590,7 +598,7 @@ class FileOperator:
         ```
         """
         if not isinstance(path, str):
-            logger.error(f"O caminho '{path}' não é válido.")
+            logger.error("O caminho '%s' não é válido.", path)
             raise InvalidFileFormatError("O caminho deve ser uma string.")
 
         try:
@@ -598,7 +606,7 @@ class FileOperator:
             Path(path)
             return True
         except (ValueError, TypeError) as err:
-            logger.error(f"O caminho '{path}' não é válido. Errr: {err}")
+            logger.error("O caminho '%s' não é válido. Errr: %s", path, err)
             raise InvalidFileFormatError(
                 f"O caminho '{path}' não é válido."
             ) from err
@@ -664,10 +672,11 @@ class FileOperator:
 
         try:
             shutil.copy2(src_filename_path, dest_filename_path)
-            print(
-                f"Arquivo copiado de {src_filename_path} para "
-                f"{dest_filename_path}"
+            logger.debug(
+                "Arquivo copiado de %s para %s",
+                src_filename_path,
+                dest_filename_path,
             )
-        except IOError as e:
-            print(f"Erro ao copiar o arquivo: {e}")
+        except IOError as err:
+            logger.error("Erro ao copiar o arquivo: Erro: %s", err)
             raise

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-import pytest
+import pytest  # type: ignore # pylint: disable=import-error
 
 from omniutils.text_utils import TextUtils
 
@@ -46,7 +46,7 @@ def test_extract_text_between_parentheses():
     assert result == "ABC-123"
 
 
-def test_extract_content_after_keyword():
+def test_extract_content_after_keyword1():
     text = "Valor da caixa: 120 comprimidos."
     special_chars_pattern = r'[\[\]{}\\(),.:;!?@#%^&*+=~`|<>"\'-]'
     result = TextUtils.extract_content_after_keyword(
@@ -58,6 +58,19 @@ def test_extract_content_after_keyword():
     # Aqui, dependendo da implementação, o resultado pode ser "120 comprimidos"
     # (sem caracteres especiais)
     assert "120" in result and "comprimidos" in result
+
+
+def test_extract_content_after_keyword2():
+    text = "Produto: válido [ABC-123], especial - em estoque."
+    special_chars_pattern = r"[\\[\\],.-]"
+    result = TextUtils.extract_content_after_keyword(
+        text,
+        keyword="Produto",
+        stopwords=["válido", "especial", "em"],
+        special_chars_pattern=special_chars_pattern,
+    )
+    # Espera-se que o resultado seja "ABC123 estoque"
+    assert result == "ABC123 estoque"
 
 
 def test_extract_number_after_keyword():
@@ -96,7 +109,10 @@ def test_ensure_utf8():
 
 
 def test_extract_http_address():
-    text = "Acesse https://www.example.com e http://teste.com para mais informações."
+    text = (
+        "Acesse https://www.example.com e "
+        "http://teste.com para mais informações."
+    )
     urls = TextUtils.extract_http_address(text)
     assert "https://www.example.com" in urls
     assert "http://teste.com" in urls
@@ -110,5 +126,5 @@ def test_extract_all_dates_as_datetime():
         pytest.approx(datetime(2024, 12, 25)),
         pytest.approx(datetime(2025, 1, 1)),
     ]
-    for dt, exp in zip(dates, expected_dates):
-        assert dt == exp
+    for datetime_value, exp in zip(dates, expected_dates):
+        assert datetime_value == exp

@@ -41,22 +41,27 @@ class DateUtils:
     @staticmethod
     def to_datetime(day: int, month: MonthType, year: int) -> datetime:
         """
-        Converte uma data, representada por dia, nome do mês e ano, para um objeto datetime.
+        Converte uma data, representada por dia, nome do mês e ano, para um
+        objeto datetime.
 
-        Este método converte o nome do mês (em formato de string, como "janeiro", "fevereiro", etc.)
-        para o número correspondente (1 para janeiro, 2 para fevereiro, etc.) utilizando o dicionário
-        `MONTH_PARSER`. Se o nome do mês não for encontrado no dicionário, um ValueError é levantado.
+        Este método converte o nome do mês (em formato de string, como
+        "janeiro", "fevereiro", etc.) para o número correspondente (1 para
+        janeiro, 2 para fevereiro, etc.) utilizando o dicionário `MONTH_PARSER`.
+         Se o nome do mês não for encontrado no dicionário, um ValueError é
+        levantado.
 
         Parâmetros:
             day (int): O dia do mês (1-31).
-            month (MonthType): O nome do mês em português (por exemplo, "janeiro", "fevereiro", etc.).
+            month (MonthType): O nome do mês em português (por exemplo,
+                "janeiro", "fevereiro", etc.).
             year (int): O ano (por exemplo, 2023).
 
         Retorna:
             datetime: Um objeto datetime representando a data informada.
 
         Exceções:
-            ValueError: Se o nome do mês fornecido não for reconhecido no dicionário `MONTH_PARSER`.
+            ValueError: Se o nome do mês fornecido não for reconhecido no
+                dicionário `MONTH_PARSER`.
 
         Exemplos de uso:
         ```python

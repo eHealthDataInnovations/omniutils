@@ -67,6 +67,7 @@ repos:
     rev: 7.1.2
     hooks:
       - id: flake8
+        args: ["--max-line-length=80"]
 #        exclude: ^testing/(data|examples)/
         additional_dependencies:
           - flake8-debugger
@@ -84,7 +85,7 @@ repos:
     hooks:
       - id: mypy
         name: Mypy Type Checker (backend)
-        args: ["--explicit-package-bases", "--config-file=mypy.ini"]  # Caminho para o arquivo mypy.ini
+        args: ["--explicit-package-bases", "--config-file=mypy.ini", "--install-types", "--non-interactive"]
         additional_dependencies:
           [
             pydantic==2.9.2,
@@ -97,23 +98,13 @@ repos:
     hooks:
       - id: pylint
         name: Pylint Code Linter
-        args: ["--rcfile=pylintrc"]  # Se você tiver um arquivo de configuração
+        args: ["--rcfile=.pylintrc"]  # Se você tiver um arquivo de configuração
 #        files: ^omniutils/  # Aplica-se apenas aos arquivos do diretório omniutils
         stages: [pre-commit]
 
   # Hooks locais para verificações e testes de projeto específicos
   - repo: local
     hooks:
-#      # Verificação de declarações de print em arquivos específicos
-#      - id: no-print-omniutils
-#        name: Bloqueia declarações de print em omniutils
-#        entry: >
-#          bash -c "grep -RIn --include='*.py' 'print(' omniutils/ &&
-#          { echo 'Declaração de print encontrada em omniutils. Remova antes de commitar.'; exit 1; } || exit 0"
-#        language: system
-#        types: [python]
-#        pass_filenames: false
-
       - id: no-delete-in-trusted
         name: No Delete in Trusted Directory
         entry: "sh -c 'if git diff --cached --name-status | grep -E \"^D\\s+data/trusted/\"; then echo \"Erro: Exclusões na pasta data/trusted não são permitidas.\"; exit 1; fi'"

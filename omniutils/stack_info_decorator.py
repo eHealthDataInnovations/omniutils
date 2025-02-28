@@ -1,7 +1,7 @@
 import functools
 import inspect
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod  # pylint: disable=no-name-in-module
 from typing import Callable, Optional, Tuple
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,6 @@ class StackLoggerAbstract(ABC):
                 return "medication_framework"
         ```
         """
-        pass
 
     @staticmethod
     def get_module_name(
@@ -155,12 +154,14 @@ class StackLoggerAbstract(ABC):
             names.insert(0, name_func)
             names.reverse()
 
-            logger.debug(f"{' > '.join(names)}", extra={"verbose": 1})
+            logger.debug("%s", " > ".join(names), extra={"verbose": 1})
             logger.debug(
-                f"args: {args}, kwargs: {kwargs}", extra={"verbose": 2}
+                "args: %s, kwargs: %s", args, kwargs, extra={"verbose": 2}
             )
+
             result = func(*args, **kwargs)
-            logger.debug(f"retorno: {result}", extra={"verbose": 2})
+
+            logger.debug("retorno: %s", result, extra={"verbose": 2})
             return result
 
         return wrapper

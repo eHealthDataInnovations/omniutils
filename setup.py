@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup
+from setuptools import setup  # type: ignore
 
 
 def read(file_path):
@@ -8,8 +8,8 @@ def read(file_path):
         os.path.join(os.path.dirname(__file__), file_path),
         "r",
         encoding="utf-8",
-    ) as f:
-        return f.read()
+    ) as rfile:
+        return rfile.read()
 
 
 setup(
