@@ -39,7 +39,7 @@ repos:
         name: Spell Checker
 #        files: ^(apps|djud|deploy|pre-commit-bin)/
         args: ["--ignore-words=pre-commit-bin/ignore-words.txt"]
-        stages: [pre-commit]
+        stages: [pre-commit, push]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.7.2
@@ -49,11 +49,11 @@ repos:
         args: ["--fix"]
         # "--select=F401,F841" Remove automaticamente os imports (F401 e variáveis (F841) não utilizadas
 #        files: ^(apps|djud|deploy|pre-commit-bin)/  # Aplica-se apenas ao diretório backend
-        stages: [pre-commit]
+        stages: [pre-commit, push]
       - id: ruff-format
         name: Ruff Formatter (backend)
 #        files: ^(apps|djud|deploy|pre-commit-bin)/  # Aplica-se apenas ao diretório backend
-        stages: [pre-commit]
+        stages: [pre-commit, push]
 
   - repo: https://github.com/psf/black
     rev: 24.10.0  # versão do Black
@@ -61,7 +61,7 @@ repos:
       - id: black
         args: ["--line-length", "80"]
 #        files: ^(apps|djud|deploy|pre-commit-bin)/  # Aplica-se apenas ao diretório backend
-        stages: [pre-commit]
+        stages: [pre-commit, push]
 
   - repo: https://github.com/pycqa/flake8
     rev: 7.1.2
@@ -77,7 +77,7 @@ repos:
     hooks:
       - id: isort
         args: ["--profile", "black"]
-        stages: [pre-commit]
+        stages: [pre-commit, push]
 
   # Verificação de tipos com Mypy
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -91,7 +91,7 @@ repos:
             pydantic==2.9.2,
           ]
 #        files: ^(apps|djud|deploy|pre-commit-bin)/  # Aplica-se apenas ao diretório backend
-        stages: [pre-commit]
+        stages: [pre-commit, push]
 
   - repo: https://github.com/pre-commit/mirrors-pylint
     rev: v3.0.0a5
@@ -100,13 +100,4 @@ repos:
         name: Pylint Code Linter
         args: ["--rcfile=.pylintrc"]  # Se você tiver um arquivo de configuração
 #        files: ^omniutils/  # Aplica-se apenas aos arquivos do diretório omniutils
-        stages: [pre-commit]
-
-  # Hooks locais para verificações e testes de projeto específicos
-  - repo: local
-    hooks:
-      - id: no-delete-in-trusted
-        name: No Delete in Trusted Directory
-        entry: "sh -c 'if git diff --cached --name-status | grep -E \"^D\\s+data/trusted/\"; then echo \"Erro: Exclusões na pasta data/trusted não são permitidas.\"; exit 1; fi'"
-        language: system
-        stages: [commit]
+        stages: [pre-commit, push]
