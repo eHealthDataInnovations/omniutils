@@ -70,4 +70,4 @@ class JsonOperator:
             with open(caminho_arquivo, "w", encoding="utf-8") as arquivo:
                 json.dump(conteudo, arquivo, indent=4)
         except json.JSONDecodeError as err:
-            raise ValueError(f"Erro ao decodificar JSON: {err}")
+            raise ValueError(f"Erro ao decodificar JSON: {err}") from err
