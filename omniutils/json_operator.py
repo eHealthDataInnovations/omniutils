@@ -32,13 +32,14 @@ class JsonOperator:
 
         """
         try:
-            with open(caminho_arquivo, 'r', encoding='utf-8') as arquivo:
+            with open(caminho_arquivo, "r", encoding="utf-8") as arquivo:
                 return json.load(arquivo)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Arquivo não encontrado: "
-                                    f"{caminho_arquivo}")
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Erro ao decodificar JSON: {e}")
+        except FileNotFoundError as error:
+            raise FileNotFoundError(
+                f"Arquivo não encontrado: {caminho_arquivo}"
+            ) from error
+        except json.JSONDecodeError as error:
+            raise ValueError(f"Erro ao decodificar JSON: {error}") from error
 
     @staticmethod
     def save_json(caminho_arquivo: str, conteudo: dict):
@@ -66,7 +67,7 @@ class JsonOperator:
 
         """
         try:
-            with open(caminho_arquivo, 'w', encoding='utf-8') as arquivo:
+            with open(caminho_arquivo, "w", encoding="utf-8") as arquivo:
                 json.dump(conteudo, arquivo, indent=4)
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Erro ao decodificar JSON: {e}")
+        except json.JSONDecodeError as err:
+            raise ValueError(f"Erro ao decodificar JSON: {err}")

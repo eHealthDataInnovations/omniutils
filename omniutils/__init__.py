@@ -21,9 +21,9 @@ from .excel_operator import ExcelOperator
 from .exceptions import DataFrameFormatError, InvalidFileFormatError
 from .file_operator import FileOperator
 from .github import GitHubUtils
+from .json_operator import JsonOperator
 from .request_handler import RequestHandler
 from .text_utils import TextUtils
-from .json_operator import JsonOperator
 
 __all__ = [
     "TextUtils",
