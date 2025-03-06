@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup  # type: ignore
+from setuptools import setup, find_packages  # type: ignore
 
 
 def read(file_path):
@@ -33,7 +33,7 @@ setup(
         "Topic :: Software Development :: Libraries",
     ],
     install_requires=read("requirements/requirements-packaging.txt"),
-    # packages=find_packages(exclude=["tests*"]),
+    packages=find_packages(exclude=["tests*"]),
     url="https://github.com/eHealthDataInnovations/medication_framework",
     include_package_data=True,
     python_requires=">=3.10",
