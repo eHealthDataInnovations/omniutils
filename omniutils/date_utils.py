@@ -127,13 +127,13 @@ class DateUtils:
                     # Caso não contenha informação de horário, tenta converter
                     # como date
                     try:
-                        dt = date.fromisoformat(value)
-                        return datetime.combine(dt, datetime.min.time())
-                    except ValueError:
+                        obj_date = date.fromisoformat(value)
+                        return datetime.combine(obj_date, datetime.min.time())
+                    except ValueError as err:
                         raise ValueError(
-                            "Impossível converter para datetime: "
-                            "string com formato inválido."
-                        )
+                            f"Impossível converter para datetime: "
+                            f"string com formato inválido: {err}"
+                        ) from err
         elif isinstance(value, date):
             return datetime.combine(value, datetime.min.time())
         elif isinstance(value, datetime):
