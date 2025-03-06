@@ -23,6 +23,7 @@ from .file_operator import FileOperator
 from .github import GitHubUtils
 from .request_handler import RequestHandler
 from .text_utils import TextUtils
+from .json_operator import JsonOperator
 
 __all__ = [
     "TextUtils",
@@ -37,4 +38,5 @@ __all__ = [
     "InvalidFileFormatError",
     "FileOperator",
     "GitHubUtils",
+    "JsonOperator",
 ]
