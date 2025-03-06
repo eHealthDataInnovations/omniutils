@@ -1,6 +1,6 @@
 # Definição do tipo para os meses
-from datetime import datetime
-from typing import Literal
+from datetime import datetime, date
+from typing import Literal, Union, Optional
 
 MonthType = Literal[
     "janeiro",
@@ -31,6 +31,8 @@ MONTH_PARSER = {
     "novembro": 11,
     "dezembro": 12,
 }
+
+DataOuString = Union[str, date, datetime]
 
 
 class DateUtils:
@@ -78,3 +80,60 @@ class DateUtils:
             raise ValueError(f"Nome do mês '{month}' inválido.")
 
         return datetime(year, month_number, day)
+
+    @staticmethod
+    def parse_datetime(value: DataOuString,
+                       fmt: Optional[str] = None) -> datetime:
+        """
+        Converte o valor fornecido para um objeto datetime, utilizando um
+        formato específico se fornecido, ou o padrão ISO 8601 caso contrário.
+
+        Se o valor for uma string e um formato (fmt) for especificado, a
+        conversão será feita com datetime.strptime. Caso fmt seja None, o método
+         tentará utilizar datetime.fromisoformat. Se a string não contiver
+        informações de horário, será feita a conversão como data e combinada
+        com o horário mínimo.
+
+        Parâmetros:
+            value: Valor a ser convertido (pode ser uma string, date ou
+                   datetime).
+            fmt: (Opcional) String com o formato a ser utilizado para conversão.
+                 Exemplo: "%d/%m/%Y %H:%M:%S". Se None, utiliza-se o padrão
+                 ISO 8601.
+
+        Retorna:
+            datetime: Objeto datetime resultante da conversão.
+
+        Exceções:
+            ValueError: Se o valor não estiver em um formato compatível para
+            conversão.
+        """
+        if isinstance(value, str):
+            if fmt is not None:
+                # Utiliza o formato especificado para conversão
+                try:
+                    return datetime.strptime(value, fmt)
+                except ValueError as e:
+                    raise ValueError(
+                        f"Falha ao converter usando o formato '{fmt}': {e}")
+            else:
+                # Tenta converter a string como datetime usando o padrão ISO
+                # 8601
+                try:
+                    return datetime.fromisoformat(value)
+                except ValueError:
+                    # Caso não contenha informação de horário, tenta converter
+                    # como date
+                    try:
+                        d = date.fromisoformat(value)
+                        return datetime.combine(d, datetime.min.time())
+                    except ValueError:
+                        raise ValueError("Impossível converter para datetime: "
+                                         "string com formato inválido.")
+        elif isinstance(value, date):
+            return datetime.combine(value, datetime.min.time())
+        elif isinstance(value, datetime):
+            return value
+        else:
+            raise ValueError("Impossível converter para datetime, o valor "
+                             "fornecido não é de um tipo reconhecido.")
