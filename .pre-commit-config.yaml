@@ -14,6 +14,7 @@
 # pre-commit autoupdate
 # pre-commit run --all-files
 # git commit -am 'Corrigindo erros apontados pelo pre-commit' --no-verify
+# git push --no-verify origin main
 # pip install types-requests
 #mypy --install-types
 # Exclui todos os arquivos, excento dentro das pastas
