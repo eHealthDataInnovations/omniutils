@@ -14,7 +14,7 @@ def read(file_path):
 
 setup(
     name="omniutils",
-    version="0.1.0",
+    version="0.1.1",
     description="Uma coleção de módulos utilitários para projetos diversos",
     long_description=read("README.md"),  # Lê diretamente do arquivo README.md
     long_description_content_type="text/markdown",
