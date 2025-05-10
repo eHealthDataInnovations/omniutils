@@ -48,3 +48,4 @@ temp/
 
 # Ignora todos os arquivos na pasta `data/trusted`
 data/trusted/*
+*.egg-info/
